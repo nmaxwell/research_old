@@ -3,8 +3,9 @@
 #include <mathlib/tools/graphing/plot2D.h>
 
 #include <mathlib/link.cpp>
+#include <mathlib/non-lib_things.h>
 
-#include <boost/math/special_functions/erf.hpp>
+//#include <boost/math/special_functions/erf.hpp>
 
 class gaussian : functor<double, double >
 {
@@ -19,10 +20,67 @@ public:
     }
 };
 
+
+
+unsigned int v; // count bits set in this (32-bit value)
+unsigned int c; // store the total here
+static const int S[] = {1, 2, 4, 8, 16}; // Magic Binary Numbers
+static const int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
+
+
+
+inline int bitsum( uint32  x )
+{
+ /*   int sum = 0;
+    for (int k=0; k<32; k++)
+        sum += (x & (1 << k)) >> k;*/
+        
+    
+    unsigned int c=0;
+    
+    c = x - ((x >> 1) & B[0]);
+    c = ((x >> S[1]) & B[1]) + (x & B[1]);
+    c = ((x >> S[2]) + x) & B[2];
+    c = ((x >> S[3]) + x) & B[3];
+    c = ((x >> S[4]) + x) & B[4];
+    
+    return c;
+}
+
+
+
+
+
+
+
+
 int main()
 {
     std_setup();
     
+    double t1=0, t2=0;
+    
+    t1 = get_real_time();
+    
+    int y = 0;
+    for (int x=0; x<1E7; x++)
+        y = bitsum(x);
+    
+    t2 = get_real_time();
+    
+    cout << t2-t1 << endl; 
+    
+        cout << bitsum(12627) <<  endl;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /*
     if (0)
     {
         plot2D plot(-4.0,4.0,-4.0,4.0, 600,600 );
@@ -177,6 +235,7 @@ int main()
             }
             
             cout << mean << endl;*/
+            /*
         }
         
         
@@ -202,7 +261,7 @@ int main()
         
         
     }
-    
+    */
     
 }
 
