@@ -1,6 +1,9 @@
 
 #include <mathlib/math/random/ml_random.h>
-#include <mathlib/tools/graphing/plot2D.h>
+#include <mathlib/math/SDE/random_walk.h>
+#include <mathlib/math/grids/grid1D.h>
+#include <mathlib/math/grids/grid2D.h>
+//#include <mathlib/math/grids/extra/plots.cpp>
 
 #include <mathlib/link.cpp>
 #include <mathlib/non-lib_things.h>
@@ -21,35 +24,60 @@ public:
 };
 
 
-
-unsigned int v; // count bits set in this (32-bit value)
-unsigned int c; // store the total here
-static const int S[] = {1, 2, 4, 8, 16}; // Magic Binary Numbers
-static const int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
-
-
-
-inline int bitsum( uint32  x )
+template< class T >
+void output( T * data, int n, const char * fname, const char * delim1="\t", const char * delim2="\n" )
 {
- /*   int sum = 0;
-    for (int k=0; k<32; k++)
-        sum += (x & (1 << k)) >> k;*/
-        
+    ofstream out;
+    out.open(fname, fstream::out);
+    assert(out.good() && out.is_open());
     
-    unsigned int c=0;
+    for ( int k=0; k<n; k++ )
+        out << data[k] << delim2;
     
-    c = x - ((x >> 1) & B[0]);
-    c = ((x >> S[1]) & B[1]) + (x & B[1]);
-    c = ((x >> S[2]) + x) & B[2];
-    c = ((x >> S[3]) + x) & B[3];
-    c = ((x >> S[4]) + x) & B[4];
+    out.close();
+}
+
+template< class T1, class T2 >
+void output( T1 * data1, T2 * data2, int n, const char * fname, const char * delim1="\t", const char * delim2="\n" )
+{
+    ofstream out;
+    out.open(fname, fstream::out);
+    assert(out.good() && out.is_open());
     
-    return c;
+    for ( int k=0; k<n; k++ )
+        out << data1[k] << delim1 << data2[k] << delim2;
+    
+    out.close();
+}
+
+void picture_BM_2D( double stop_time, double time_step, grid2D<double,double > & f, int n_runs )
+{
+    int n_steps = stop_time/time_step;
+    
+    double **W=0;
+    gen_BM( time_step, n_steps, W, n_runs );
+    
+    f = grid2D<double,double > ( n_steps, 0.0, stop_time,  n_steps, -stop_time/2, stop_time/2 );
+    f = 0.0;
+    
+    double s = time_step*time_step*2.0;
+    cout << "plotting...\n";
+    for ( int n=0; n<n_runs; n++)
+    for ( int k=0; k<n_steps; k++ )
+    {
+        for ( int j=0; j<f.n2; j++ )
+            f(k,j) += exp(-(f.x2(j)-W[n][k])*(f.x2(j)-W[n][k])/s);
+    }
+    
 }
 
 
 
-
+ml_color cmap( double I)
+{
+    float s = I;
+    return ml_color(s,s,s);
+}
 
 
 
@@ -58,211 +86,50 @@ int main()
 {
     std_setup();
     
-    double t1=0, t2=0;
+    int n_runs = 500;
+    double stop_time = 10.0;
+    double time_step = 0.001;
+    int n_steps = stop_time/time_step;
     
-    t1 = get_real_time();
-    
-    int y = 0;
-    for (int x=0; x<1E7; x++)
-        y = bitsum(x);
-    
-    t2 = get_real_time();
-    
-    cout << t2-t1 << endl; 
-    
-        cout << bitsum(12627) <<  endl;
+    double **W=0;
+    gen_BM( time_step, n_steps, W, n_runs );
     
     
-    
-    
-    
-    
-    
-    
-    
-    /*
-    if (0)
-    {
-        plot2D plot(-4.0,4.0,-4.0,4.0, 600,600 );
-        plot = c3_creme;
-        plot.axes_1(0,0, 1, c3_creme,c3_black,plot2D_stdFormat,c3_black, 10,10,1,10  );
+        double Dt = 1.0;
+        double s = time_step*time_step*2.0;
         
-        
-       // plot.plot( plot_schauder ,c3_blue);
-        
-        sprintf(fname,"%s/out/out.png",pwd);
-        plot.png(fname);    
-    }
-    
-    if(0)
-    {
-        int n_steps = 1000;
-        float stop_time = 1.0;
-        float time_step = stop_time/n_steps;
-        float x_step = 0.1;
-        
-        for (int trial =0; trial<100; trial++)
+        for (int K=0; K<stop_time/Dt; K++ )
         {
-            double W[n_steps];
-            double t[n_steps];
+            int k = floor(((K*Dt)/time_step));
+            double t = time_step*k;
             
-            for (int step = 0; step<n_steps; step++)
-            {
-                t[step] = time_step*step;
-                W[step] = 0;
-            }
+            grid1D<double, double > f( 100, -3.0*sqrt(t), +3.0*sqrt(t) );
+            f = 0.0;
             
-            ml_random rng;
+            for ( int r=0; r<n_runs; r++)
+            for ( int j=0; j<f.n1; j++)
+                f(j) += exp(-(f.x1(j)-W[r][k])*(f.x1(j)-W[r][k])/s);
             
-            int n_series = (n_steps/32+1);
-            bool series[n_series*32];
+            double * X = ml_alloc<double > (f.n1);
+            for (int k=0; k<f.n1; k++)
+                X[k] = f.x1(k);
             
-            int series32[n_series];
-            for (int k=0; k<n_series; k++)
-                series32[k] = rng.gen_int();
+            sprintf(fname, "/workspace/output/temp/X_%d", K);
+            output( X, f.n1, fname );
             
-            int32_to_bool_decomp( n_series, series32, series );
+            sprintf(fname, "/workspace/output/temp/out_%d", K);
+            output( f.array, f.n1, fname );
             
-            W[0] = 0.0;
-            
-            for (int step = 1; step<n_steps; step++)
-                if ( series[step] )
-                    W[step] = W[step-1] + x_step;
-                else
-                    W[step] = W[step-1] - x_step;
-            
-                   
-            plot2D plot(-0.1,stop_time*1.1,-10,10, 900,600 );
-            plot = c3_creme;
-            plot.axes_1(0,-7, 1, c3_creme,c3_black,plot2D_stdFormat,c3_black, 0.1,10,1,10  );
-            
-            plot.plot<double, double >(&(t[0]),&(W[0]),n_steps ,c3_black);
-            
-            sprintf(fname,"%s/out/%03d.png",pwd,trial);
-            plot.png(fname);
+            ml_free(X);
         }
-    }
     
+    //picture_BM_2D( stop_time, time_step, f, n_runs );
     
+    //plotGrid2D_1( f,  "/workspace/output/temp/BM.png", cmap );
     
-    if(1)
-    {
-        uint n_trials = 5e7;
-        int n_steps = 200;
-        int sample_mod = 10;
-        
-        int n_samples = (n_steps-n_steps%sample_mod)/sample_mod;
-        
-        int range = 200;
-        int origin = range/2;
-        
-        uint32 bins[n_samples][range];
-        
-        for (int s=0; s<n_samples; s++)
-        for (int x=0; x<range; x++)
-            bins[s][x] = 0;
-        
-        int n_series = (n_steps/32+1);
-        bool series[n_series*32];
-        int series32[n_series];
-        ml_random rng(n_series*n_trials*1.2);
-        
-        for (uint trial=0; trial<n_trials; trial++)
-        {
-            //cout << trial << "\t" << ((float)trial)/n_trials <<  endl;
-            
-            for (int k=0; k<n_series; k++)
-                series32[k] = rng.next_uint();
-            
-            int32_to_bool_decomp( n_series, series32, series );
-            
-            int x = origin;
-            
-            for (int step = 0; step<n_steps; step++)
-            {
-                if ( series[step] )
-                    x++;
-                else
-                    x--;
-                
-                if (  x >= 0 && x < range ) // !(step%sample_mod) &&
-                    bins[step/sample_mod][x] ++;
-            }
-        }
-        
-        cout << endl << endl;
-        
-        double density[n_samples][range];
-
-        for (int s=0; s<n_samples; s++)
-        {
-            uint32 sum = 0;
-            for (int x = 0; x<range; x++)
-                sum += bins[s][x];
-            
-            for (int x = 0; x<range; x++)
-                density[s][x] = ((double)bins[s][x])/sum;
-        }
-        
-        double expectation[n_samples];
-        double variance[n_samples];
-        
-        {
-            for (int s=0; s<n_samples; s++)
-            {
-                expectation[s] = 0;
-                
-                for (int x = 0; x<range; x++)
-                    expectation[s] += density[s][x]*x;
-            }
-            
-            for (int s=0; s<n_samples; s++)
-            {
-                variance[s] = 0;
-                
-                for (int x = 0; x<range; x++)
-                    variance[s] += density[s][x]*x*x;
-            }
-            
-            for (int s = 0; s<n_samples; s++)
-                variance[s] -= expectation[s]*expectation[s];
-            
-          /*  double mean = 0;
-            for (int s=1; s<n_samples-1; s++)
-            {
-                mean += (variance[s+1]-variance[s])/(n_samples-2);
-                cout << expectation[s] << "\t" << variance[s+1]-variance[s] << endl;
-            }
-            
-            cout << mean << endl;*/
-            /*
-        }
-        
-        
-        for (int s=0; s<n_samples; s++)
-        {
-            plot2D plot( 0, range , -0.1,.21, 900,600 );
-            plot = c3_blue;
-            //plot.axes_1(0,0, 1, c3_blue,c3_creme,plot2D_stdFormat,c3_creme, 10.0,1,0.2,10  );
-            
-            cout << expectation[s] << "\t" << variance[s] << endl;
-            
-            gaussian G(expectation[s], sqrt(variance[s]) );
-            
-            plot.plot(G, c3_white );
-            
-            for (int x = 0; x<range; x++)
-                plot.ptDot( x , density[s][x], 2, c3_white );
-            
-            sprintf(fname,"%s/out/%03d.png",pwd,s*sample_mod);
-          //  cout << fname << endl;
-            plot.png(fname);
-        }
-        
-        
-    }
-    */
+    //output( W[9], n_steps, "/workspace/output/temp/out" );
     
+    std_exit();
 }
 
 

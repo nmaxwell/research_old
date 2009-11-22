@@ -68,7 +68,7 @@ Then $t_0 = 0$, $W_{t_k} = \sum_{j=1}^{k} \, dW_j$
 
 \begin{flushleft}
 Implementation:\\
-Let $y_j = \{ 1 \IF dW_j = +1, 0 \IF dW_j = -1 \}$, then $dW_j = 2h\, y_j-h$, $W_{t_k} = \sum_{j=0}^{k} \, (2h\, y_j-h) =$ $ -k \cdot h + 2h \cdot \sum_{j=0}^{k} \, y_j$, so this looks like a binomial random variable.
+Let $y_j = \{ 1 \IF dW_j = +h, 0 \IF dW_j = -h \}$, then $dW_j = 2h\, y_j-h$, $W_{t_k} = \sum_{j=0}^{k} \, (2h\, y_j-h) =$ $ -k \cdot h + 2h \cdot \sum_{j=0}^{k} \, y_j$, so this looks like a binomial random variable. Then, seeing as $y_j \in \{ 1,0\}$, with even probability, picking 32 $y_j$s (or whatever the word size if of the computer) is equivalent to picking a 32 bit integer with uniform distribution over the integer's full scale. 
 \end{flushleft}
 
 
