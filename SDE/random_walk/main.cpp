@@ -88,20 +88,20 @@ int main()
     
     int n_runs = 500;
     double stop_time = 10.0;
-    double time_step = 0.001;
-    int n_steps = stop_time/time_step;
+    double h = 0.001/32;
+    int n_steps = stop_time/(h*32);
     
     double **W=0;
-    gen_BM( time_step, n_steps, W, n_runs );
+    gen_BM( h, n_steps, W, n_runs );
     
     
         double Dt = 1.0;
-        double s = time_step*time_step*2.0;
+        double s = h*h*1024*2.0;
         
         for (int K=0; K<stop_time/Dt; K++ )
         {
-            int k = floor(((K*Dt)/time_step));
-            double t = time_step*k;
+            int k = floor(((K*Dt)/(h*32)));
+            double t = h*32*k;
             
             grid1D<double, double > f( 100, -3.0*sqrt(t), +3.0*sqrt(t) );
             f = 0.0;
@@ -114,10 +114,10 @@ int main()
             for (int k=0; k<f.n1; k++)
                 X[k] = f.x1(k);
             
-            sprintf(fname, "/workspace/output/temp/X_%d", K);
+            sprintf(fname, "/workspace/output/X_%d", K);
             output( X, f.n1, fname );
             
-            sprintf(fname, "/workspace/output/temp/out_%d", K);
+            sprintf(fname, "/workspace/output/out_%d", K);
             output( f.array, f.n1, fname );
             
             ml_free(X);

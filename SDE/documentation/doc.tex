@@ -22,7 +22,6 @@
 \newcommand{\pset}[1]{ \mathcal{P}(#1) }
 
 
-
 \newcommand{\nats}[0] { \mathbb{N}}
 \newcommand{\reals}[0] { \mathbb{R}}
 \newcommand{\exreals}[0] {  [-\infty,\infty] }
@@ -59,7 +58,7 @@ Nicholas Maxwell; Dr. Bodmann\\
 
 
 
-\section*{Part 1}
+\section*{Part 1 - BM}
 
 \begin{flushleft}
 $W_t := W(t,\omega)$ a brownian motion. Discretize this and approximate as a random walk, then $dW_j := W(t_{j+1},\omega)-W(t_{j},\omega)$, $dW_j \in \{-h, +h\}$, with $t_j = h \cdot j$, $P(dW_j = +h) = P(dW_j = -h) = \frac{1}{2}$. \\
@@ -71,7 +70,10 @@ Implementation:\\
 Let $y_j = \{ 1 \IF dW_j = +h, 0 \IF dW_j = -h \}$, then $dW_j = 2h\, y_j-h$, $W_{t_k} = \sum_{j=0}^{k} \, (2h\, y_j-h) =$ $ -k \cdot h + 2h \cdot \sum_{j=0}^{k} \, y_j$, so this looks like a binomial random variable. Then, seeing as $y_j \in \{ 1,0\}$, with even probability, picking 32 $y_j$s (or whatever the word size if of the computer) is equivalent to picking a 32 bit integer with uniform distribution over the integer's full scale. 
 \end{flushleft}
 
-
+\begin{flushleft}
+$\Omega_n = \{ \omega_k: 0 \le k < 2^n, \omega_k = (a_{k,0}, a_{k,1}, ... ,a_{k,n-1}), k = \sum_{j=0}^{n-1} a_{n,j} 2^{-j}, a_{k,j} \in \{ 0,1 \} \}$, $P_n(\omega_k) = 2^{-n}$. $X_n: \Omega_n \rightarrow \reals$, $X_n(\omega_k) = \sum_{j=0}^{n-1} a_{n,j} $. $Y_n(\omega_k) := 2 X_n(\omega_k) - n$. $b(x; n) = P_n ( X_n^{-1}( \{ x \}) ) = \binom{n}{x} 2^{-n} $. $g(x; n) := P_n ( Y_n^{-1}( \{ x \}) ) = P_n ( (2 X_n - n)^{-1}( \{ x \}) ) =  b(\frac{x+n}{2}; n) = \binom{n}{\frac{x+n}{2}} 2^{-n} $. \\ 
+Then, it is know that for $E(X_n) = \frac{1}{2} n $, $\sigma_{X_n}^2 = \frac{1}{4} n$, so $E(Y_n) = 0$, $\sigma_{Y_n}^2 = n$, so $\sqrt{h} \cdot Y_k$ has the same basic properties $W(h k)$.
+\end{flushleft}
 
 \end{document}
 
