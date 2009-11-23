@@ -86,22 +86,33 @@ int main()
 {
     std_setup();
     
-    int n_runs = 500;
-    double stop_time = 10.0;
-    double h = 0.001/32;
-    int n_steps = stop_time/(h*32);
+    int n_runs = 10000;
+    double stop_time = 1.0;
+    double h = 0.01;
+    int n_steps = stop_time/h;
     
-    double **W=0;
+    float * M = ml_alloc<float > (n_runs );
+    
+    float **W=0;
     gen_BM( h, n_steps, W, n_runs );
+    
+    for ( int k=0; k<n_runs; k++ )
+        M[k] = W[k][n_steps-1];
+    
+    output(  M, n_runs, "/workspace/output/out.dat" );
+    
+    
+    
     
     
         double Dt = 1.0;
-        double s = h*h*1024*2.0;
+        double s = h*h*2.0;
         
+        /*
         for (int K=0; K<stop_time/Dt; K++ )
         {
-            int k = floor(((K*Dt)/(h*32)));
-            double t = h*32*k;
+            int k = floor(((K*Dt)/(h)));
+            double t = h*k;
             
             grid1D<double, double > f( 100, -3.0*sqrt(t), +3.0*sqrt(t) );
             f = 0.0;
@@ -122,6 +133,7 @@ int main()
             
             ml_free(X);
         }
+        */
     
     //picture_BM_2D( stop_time, time_step, f, n_runs );
     
