@@ -102,8 +102,7 @@ int main()
         {
             if (l >= 10)
             {
-                prediction = !s;
-                
+                prediction = !s;                
                 
                 if (x[k] == prediction) score ++;
                     else score --;
