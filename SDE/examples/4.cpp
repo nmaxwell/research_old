@@ -72,8 +72,8 @@ int main()
 {
     std_setup();
     
-    int n_runs = 1E1;
-    int n_steps = 1E5;
+    int n_runs = 20;
+    int n_steps = 1E6;
     double **W=0, *dW=0;
     
     W = ml_alloc<double > (n_runs, n_steps );
@@ -92,15 +92,24 @@ int main()
         
         for ( int step=0; step<n_steps; step++ )
             W[run][step] = W[run][step-1] + dW[step-1]*sqrt(dt);
+        
+        
+        double ito_sum = 0.0;
+        
+        for (int step=0; step<n_steps-1; step++)
+            ito_sum += W[run][step]*(W[run][step+1]-W[run][step]);   
+        
+        cout << "ito: " << ito_sum << "\t" << 0.5*( W[run][n_steps-1]*W[run][n_steps-1] - stop_time )  << "\t" << fabs( ito_sum - 0.5*(W[run][n_steps-1]*W[run][n_steps-1] - stop_time) ) <<endl;
+        
+        
+        double strat_sum = 0.0;
+        
+        for (int step=0; step<n_steps-1; step++)
+            strat_sum += (W[run][step] + W[run][step+1] )*(W[run][step+1]-W[run][step])/2;   
+        
+        cout << "strat: " << strat_sum << "\t" << 0.5*( W[run][n_steps-1]*W[run][n_steps-1] )  << "\t" << fabs( strat_sum - 0.5*(W[run][n_steps-1]*W[run][n_steps-1] ) ) <<endl;
+        
     }
-    
-    double ito_sum = 0.0;
-    
-    for (int run=0; run<n_runs; run++)
-    {
-        ito_sum += 
-    }
-    
     
     ml_free( W, n_runs );
     ml_free( dW );
