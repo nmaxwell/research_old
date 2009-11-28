@@ -1,5 +1,5 @@
 
-#define ML_NOT_USE_FFTW_MALLOC
+//#define ML_NOT_USE_FFTW_MALLOC
 
 #include <mathlib/math/SDE/BM.h>
 
@@ -56,71 +56,64 @@ double g( double x, double t )
 int main()
 {
     /*
-     * Euler-Maruyama Method
+     * Euler-Maruyama Method, convergence test
      * 
      * 
      */
     
     std_setup();
     
-    double X0 = 1.0;
+    mu = 1.0;
+    lambda = 2.0;
+    double X0 = 1.0;   
+    double stop_time = 1.0;
+    int n_steps = 512;
+    int n_runs = 1000;
+    int n_R = 7;
     
-    int n_steps = 1E4;
-    int n_runs = 1;
-    double **W=0, *time=0, *X_true=0;
+    double Xerr[n_R][n_runs];
+    double X_true[n_R][n_runs];
     
-    double stop_time = 2.0;
-    double dt = stop_time/n_steps;
-    
-    gen_BM( dt, n_steps, W, n_runs, BM_mode_3 );
-    time = reg_discr( 0, stop_time, n_steps );
-    
-    double **X = ml_alloc<double> ( n_runs, n_steps );
-    
-    for ( int run=0; run<n_runs; run++ )
+    for (int p=0; p<n_R; p++)
     {
-        X[run][0] = X0;
+        cout << p << "\t" << n_steps*pow(2,p)*n_runs << endl;
+        int R = pow(2,p);
+        double **W=0, Xt, dt = stop_time/n_steps;
         
-        for ( int j=1; j<n_steps; j++ )
-            X[run][j] = X[run][j-1] + f(X[run][j-1], dt*j)*dt + g(X[run][j-1], dt*j)*(W[run][j]-W[run][j-1]);
-    }
-    
-    double * X_mean = ml_alloc<double> (n_steps);
-    
-    for ( int step=0; step<n_steps; step++ )
-        X_mean[step] = 0;
-    
-    for ( int run=0; run<n_runs; run++ )
-    for ( int step=0; step<n_steps; step++ )
-        X_mean[step] += X[run][step];
-    
-    for ( int step=0; step<n_steps; step++ )
-        X_mean[step] /= n_runs;
-    
-    X_true = ml_alloc<double> (n_steps);
-    for ( int k=0; k<n_steps; k++ )
-        X_true[k] = X[0][0]*exp( (lambda-0.5*mu*mu)*time[k] + mu*W[0][k] );
-    
-    if (1)
-    {
-        output( X_mean, n_steps, "/workspace/output/temp/X_mean" );
+        gen_BM( dt/R, n_steps*R, W, n_runs, BM_mode_3 );
         
-        for (int run=0; run<min(n_runs,20); run++)
+        Xt = 0;
+        
+        for ( int run=0; run<n_runs; run++ )
         {
-            sprintf(fname, "/workspace/output/temp/X_%d", run);
-            output( X[run], n_steps, fname );
+            Xt = X0;
+            
+            for ( int j=1; j<n_steps; j++ )
+                Xt += f(Xt, dt*j)*dt + g(Xt, dt*j)*(W[run][j*R]-W[run][(j-1)*R]);
+            
+            X_true[p][run] = X0*exp( (lambda-0.5*mu*mu)*stop_time + mu*W[run][R*n_steps-1] );
+            
+            //Xerr[p][run] = 100.0*fabs((( Xt - X_true[p][run] )/X_true[p][run]));
+            Xerr[p][run] = fabs( Xt - X_true[p][run] );
         }
         
-        output( time, n_steps, "/workspace/output/temp/time" );
-        
-        output( X_true, n_steps, "/workspace/output/temp/X_true" );
+        ml_free( W, n_runs );
     }
     
-    ml_free( X, n_runs );
-    ml_free( X_mean );
-    ml_free( X_true );
-    ml_free( W, n_runs );
-    ml_free( time );
+    cout << endl;
+    
+    
+    for (int p=0; p<n_R; p++)
+    {
+        double mean_err = 0;
+        for (int k=0; k<n_runs; k++)
+            mean_err += Xerr[p][k]/n_runs;
+        
+        cout << log10((stop_time/n_steps)/(pow(2,p))) << "\t" << log10(mean_err) << endl;
+    }
+    
+    
+    
     
     std_exit();
 }

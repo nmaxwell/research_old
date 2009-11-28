@@ -20,8 +20,10 @@ from read_file import *
 
 time = read_file( "time" )
 
-for n in range(1,10):
-    p.plot( time, read_file( "X_" + str(n) ) )
+n= 1
+
+for k in range(1,n):
+    p.plot( time, read_file( "X_" + str(k) ) )
 
 p.plot ( time, read_file( "X_mean" )  )
 
@@ -56,7 +58,7 @@ double g( double x, double t )
 int main()
 {
     /*
-     * Euler-Maruyama Method
+     * Euler-Maruyama Method, with the 'R' factor
      * 
      * 
      */
@@ -64,15 +66,15 @@ int main()
     std_setup();
     
     double X0 = 1.0;
-    
-    int n_steps = 1E5;
+    int R = 100;
+    int n_steps = 500;
     int n_runs = 1;
     double **W=0, *time=0, *X_true=0;
     
     double stop_time = 2.0;
     double dt = stop_time/n_steps;
     
-    gen_BM( dt, n_steps, W, n_runs, BM_mode_3 );
+    gen_BM( dt/R, n_steps*R, W, n_runs, BM_mode_1 );
     time = reg_discr( 0, stop_time, n_steps );
     
     double **X = ml_alloc<double> ( n_runs, n_steps );
@@ -82,7 +84,9 @@ int main()
         X[run][0] = X0;
         
         for ( int j=1; j<n_steps; j++ )
-            X[run][j] = X[run][j-1] + f(X[run][j-1], dt*j)*dt + g(X[run][j-1], dt*j)*(W[run][j]-W[run][j-1]);
+        {
+            X[run][j] = X[run][j-1] + f(X[run][j-1], dt*j)*dt + g(X[run][j-1], dt*j)*(W[run][j*R]-W[run][(j-1)*R]);
+        }
     }
     
     double * X_mean = ml_alloc<double> (n_steps);
@@ -99,7 +103,7 @@ int main()
     
     X_true = ml_alloc<double> (n_steps);
     for ( int k=0; k<n_steps; k++ )
-        X_true[k] = X[0][0]*exp( (lambda-0.5*mu*mu)*time[k] + mu*W[0][k] );
+        X_true[k] = X[0][0]*exp( (lambda-0.5*mu*mu)*time[k] + mu*W[0][k*R] );
     
     if (1)
     {

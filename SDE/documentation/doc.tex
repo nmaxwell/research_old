@@ -97,7 +97,7 @@ Then, it is know that for $E(X_n) = \frac{1}{2} n $, $\sigma_{X_n}^2 = \frac{1}{
 \end{flushleft}
 
 \begin{flushleft}
-This is the psuedo code for the three methods used. Here << and >> are left and right bit shifts respectively, and \& is the `and' logic.
+This is the psuedo code for the three methods used. Here $<<$ and $>>$ are left and right bit shifts respectively, and \& is the `and' logic.
 \end{flushleft}
 
 \lstset{language=c++ }
@@ -220,7 +220,7 @@ Then, as an efficiency test, 1E4 runs of 1E3 (32E3 for the regular random walk) 
 
 
 \begin{flushleft}
-The modified random walk method seems to yield similar resutls as the direct method, while being about twice as efficient. It also runs about six times faster than the regular random walk for an equivalent number of steps, this is due primarily to more efficient code logic. 
+The modified random walk method seems to yield similar resutls as the direct method, while being about twice as efficient. It also runs about six times faster than the regular random walk for an equivalent number of steps, this is due primarily due to more efficient code logic (I suspect that the ``bitsum'' function is heavily optimized by the compiler, or even equivalent to a hardware instruction ).
 \end{flushleft}
 
 
