@@ -1,49 +1,18 @@
 
-#define ML_NOT_USE_FFTW_MALLOC
 
-#include <mathlib/math/random/ml_random.h>
-#include <mathlib/math/SDE/random_walk.h>
-#include <mathlib/math/grids/grid1D.h>
-#include <mathlib/math/grids/grid2D.h>
-//#include <mathlib/math/grids/extra/plots.cpp>
+//#define ML_NOT_USE_FFTW_MALLOC
+
+#include <mathlib/math/SDE/BM.h>
 
 #include <mathlib/link.cpp>
 #include <mathlib/non-lib_things.h>
 
-//#include <boost/math/special_functions/erf.hpp>
-
-
-
-
-template< class T >
-void output( T * data, int n, const char * fname, const char * delim1="\t", const char * delim2="\n" )
-{
-    ofstream out;
-    out.open(fname, fstream::out);
-    assert(out.good() && out.is_open());
-    
-    for ( int k=0; k<n; k++ )
-        out << data[k] << delim2;
-    
-    out.close();
-}
-
-template< class T1, class T2 >
-void output( T1 * data1, T2 * data2, int n, const char * fname, const char * delim1="\t", const char * delim2="\n" )
-{
-    ofstream out;
-    out.open(fname, fstream::out);
-    assert(out.good() && out.is_open());
-    
-    for ( int k=0; k<n; k++ )
-        out << data1[k] << delim1 << data2[k] << delim2;
-    
-    out.close();
-}
 
 
 
 /*
+
+
 
 import math
 import pylab as p
@@ -51,8 +20,12 @@ import sys
 sys.path.append("/workspace/mathlib/tools/python/")
 from read_file import *
 
-for n in range(1,10):
-    print p.std( read_file( "out_" + str(n) ) ), math.sqrt( float(n)/10 )
+n = 10
+
+for k in range(1,n):
+    print p.std( read_file( "out_" + str(k) ) ), math.sqrt( float(k)/n ), p.mean( read_file( "out_" + str(k) ) )
+
+
 
 */
 
@@ -62,45 +35,40 @@ int main()
 {
     std_setup();
     
-    int n_runs = 1E5;
-    int n_steps = 10;
-    double **W=0, *dW=0;
-    
-    W = ml_alloc<double > (n_runs, n_steps );
-    dW = ml_alloc<double > ( n_steps );
-    
-    ml_random rng;
+    int n_runs = 1E4;
+    int n_steps = 1E3;
+    double **W=0;
     
     double stop_time = 1.0;
     double dt = stop_time/n_steps;
     
-    for (int run=0; run<n_runs; run++)
+    double t1,t2;
+    
+    t1 = get_real_time();
+    
+    gen_BM( dt, n_steps, W, n_runs, BM_mode_3 );
+    
+    t2 = get_real_time();
+    
+    cout << "time: " << t2-t1 << endl;
+        
+    if (0)
     {
-        rng.std_normal_rv( dW, n_steps);
+        double * M = ml_alloc<double > (n_runs );
         
-        W[run][0] = 0;
-        
-        for ( int j=1; j<n_steps; j++ )
-            W[run][j] = W[run][j-1] + dW[j-1]*sqrt(dt);
+        for ( int step=0; step<n_steps; step++ )
+        {
+            for (int run=0; run<n_runs; run++)
+                M[run] = W[run][step];
+            
+            sprintf(fname, "/workspace/output/temp/out_%d", step);
+            output( M, n_runs, fname );
+        }
     }
-    
-    double * M = ml_alloc<double > (n_runs );
-    
-    for ( int step=0; step<n_steps; step++ )
-    {
-        for (int run=0; run<n_runs; run++)
-            M[run] = W[run][step];
-        
-        sprintf(fname, "/workspace/output/temp/out_%d", step);
-        output( M, n_runs, fname );
-    }
-    
     
     ml_free( W, n_runs );
-    ml_free( dW );
     
     std_exit();
 }
-
 
 

@@ -2,7 +2,7 @@
 #define ML_NOT_USE_FFTW_MALLOC
 
 #include <mathlib/math/random/ml_random.h>
-#include <mathlib/math/SDE/random_walk.h>
+#include <mathlib/math/SDE/BM.h>
 #include <mathlib/math/grids/grid1D.h>
 #include <mathlib/math/grids/grid2D.h>
 //#include <mathlib/math/grids/extra/plots.cpp>
@@ -45,6 +45,8 @@ void output( T1 * data1, T2 * data2, int n, const char * fname, const char * del
 
 /*
 
+
+
 import math
 import pylab as p
 import sys
@@ -64,35 +66,32 @@ p.plot(X,Y,X, read_file( "U_mean" )  )
 p.show()
 
 
+
+
+
 */
 
 
 
 int main()
 {
+    /*
+     * functions along a brownian path
+     *  exp( t + 0.5 Wt )
+     * 
+     */
+    
     std_setup();
     
     int n_runs = 1E4;
     int n_steps = 1E3;
-    double **W=0, *dW=0;
-    
-    W = ml_alloc<double > (n_runs, n_steps );
-    dW = ml_alloc<double > ( n_steps );
-    
-    ml_random rng;
+    double **W=0;
     
     double stop_time = 1.0;
     double dt = stop_time/n_steps;
     
-    for (int run=0; run<n_runs; run++)
-    {
-        rng.std_normal_rv( dW, n_steps);
-        
-        W[run][0] = 0;
-        
-        for ( int step=0; step<n_steps; step++ )
-            W[run][step] = W[run][step-1] + dW[step-1]*sqrt(dt);
-    }
+    gen_BM( dt, n_steps, W, n_runs, BM_mode_2 );
+    
     
     double * U_mean = ml_alloc<double > (n_steps);
     
@@ -104,8 +103,7 @@ int main()
             U_mean[step] += exp( step*dt + 0.5*W[run][step] )/n_runs;
     }
     
-    output( U_mean, n_steps, "/workspace/output/temp/U_mean" );
-    
+    output( U_mean, n_steps, "/workspace/output/temp/U_mean" );    
     
     double * M = ml_alloc<double > (n_steps );
     
@@ -118,11 +116,8 @@ int main()
         output( M, n_steps, fname );
     }
     
-    
-    
     ml_free( U_mean );
     ml_free( W, n_runs );
-    ml_free( dW );
     
     std_exit();
 }
