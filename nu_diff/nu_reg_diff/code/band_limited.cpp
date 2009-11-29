@@ -207,7 +207,7 @@ int main()
 	    double *G0=0,*G1=0,*G2=0,*G3=0,*G4=0,*G5=0,*G6=0;
 	    
 	    test_function( G0, G1, G2, n, a, b, gamma*(pi*n)/(b-a) );
-
+        
 	    hdaf_diff( a, b, n, 30, 0.35, G0, G3 );
 	    
 	    double error = 0.0;
