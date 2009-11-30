@@ -13,6 +13,7 @@
 struct transform_args
 {
     transform_args( double a, int n, double xi ): a(a), n(n), xi(xi) {}
+    
     double a;
     int n;
     double xi;
@@ -153,14 +154,21 @@ int main()
             if (k%4 == 3) P3[k] = binom(n,k)*dfact2n_n[n-k]*sqrtpi*pow(a,-n)*pow(2.0,k-2*n);
         }
         
+        ml_poly<double > PR(n); P0 = 0.0;
+        ml_poly<double > PI(n); P1 = 0.0;
+        
+        PR = P0; PR -= P2;
+        PI = P1; PI-= P3;
+        
+        
         for ( int j=-N; j<=N; j++ )
         {
             double xi = h*j;
             
             Xi[j+N] = xi;
             
-            FTR[j+N] = exp(-xi*xi/(a*4))*(P0(xi) - P2(xi));
-            FTI[j+N] = exp(-xi*xi/(a*4))*(P1(xi) - P3(xi));
+            FTR[j+N] = exp(-xi*xi/(a*4))*PR(xi);
+            FTI[j+N] = exp(-xi*xi/(a*4))*PI(xi);
         }
         
         output( Xi, FTR, FTI, 2*N+1, "/workspace/output/temp/test" );
