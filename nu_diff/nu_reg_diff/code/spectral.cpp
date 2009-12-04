@@ -72,7 +72,7 @@ int main()
     double b = 1.0;
     double h = (b-a)/n;
     
-    int k_max = 64;
+    int k_max = n/2;
     
     int n_d = 20;
     
@@ -80,12 +80,16 @@ int main()
     
     for ( int k_ = 0; k_<k_max; k_++ )
     {
+        cout << k_ << endl;
         double k = (_2pi*k_)/(b-a);
         
         //--------
         
         double **D = ml_alloc<double> ( n_d, n );
         double **G = ml_alloc<double> ( n_d, n );
+        
+        double **E = ml_alloc<double> ( n_d, n );
+        complex<double > **Q = ml_alloc<complex<double > > ( n_d, n/2+1 );
         
         test_function( D, n_d, n, a, b, k );
         
@@ -98,8 +102,26 @@ int main()
         for ( int j=1; j<n_d; j++ )
             error[k_][j-1] = l2_error( D[j], G[j], n, a, b );
         
+        
+        
+        for ( int j=0; j<n_d; j++ )
+        for ( int i=0; i<n; i++ )
+            E[j][i] = log(abs(G[j][i])+1E-18);
+        
         sprintf( fname, "/workspace/output/temp/%d", k_ );
-        output( D, n_d, n, fname );
+        output( E, n_d, n, fname );
+        
+        for ( int j=0; j<n_d; j++ )
+            FFT( G[j], Q[j], n );
+        
+        for ( int j=0; j<n_d; j++ )
+        for ( int i=0; i<n/2+1; i++ )
+            E[j][i] = log(abs(Q[j][i])+1E-18);
+        
+        sprintf( fname, "/workspace/output/temp/ft_%d", k_ );
+        output( E, n_d, n/2+1, fname );
+        
+        
         
         ml_free(D, n_d);
         ml_free(G, n_d);
