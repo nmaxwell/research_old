@@ -62,6 +62,14 @@ double l2_error( double *& analytic, double *& numeric, int n, double a, double 
 }
 
 
+double l2_norm( double *& data, int n, double a, double b)
+{
+    double sum = 0.0;
+    for (int k=0; k<n; k++)
+        sum += data[k]*data[k];
+    
+    return sqrt(sum/n);
+}
 
 
 

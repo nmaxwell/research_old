@@ -1,4 +1,7 @@
 
+
+
+#define N_FFT_THREADS 1
 #define INCLUDE_FD_D1_LR
 
 #include "common.cpp"
@@ -37,7 +40,7 @@ void test_function(double **& D, int m, int n, double a, double b, double k )
 
 
 
-void D_fft (double d, int w, double a, double b, int n, double *&in, double *&out )
+void D_fft (double d, double a, double b, int n, double *&in, double *&out )
 {
     // differentiation: periodic boundaries, dth derivative, mth order (2*m+1 wide kernel), period a to b, n points.
     
@@ -85,61 +88,59 @@ int main()
         
         //--------
         
-        double **D = ml_alloc<double> ( n_d, n );
-        double **G = ml_alloc<double> ( n_d, n );
+        double **ana = ml_alloc<double> ( n_d, n );
+        double **num = ml_alloc<double> ( n_d, n );
+        double *mag = ml_alloc<double> ( n_d );
+        double **err = ml_alloc<double> ( n_d, n );
+        complex<double> **ft_err = ml_alloc<complex<double> > ( n_d, n/2+1 );
         
-        double **E = ml_alloc<double> ( n_d, n );
-        complex<double > **Q = ml_alloc<complex<double > > ( n_d, n/2+1 );
-        
-        test_function( D, n_d, n, a, b, k );
+        test_function( ana, n_d, n, a, b, k );
         
         for ( int j=0; j<n; j++ )
-            G[0][j] = D[0][j];
+            num[0][j] = ana[0][j];
         
         for ( int j=1; j<n_d; j++ )
-            D_fft (1, 16, a, b, n, G[j-1], G[j] );
-            
+            D_fft (1, a, b, n, num[j-1], num[j] );
+        
+        
+        
         for ( int j=1; j<n_d; j++ )
-            error[k_][j-1] = l2_error( D[j], G[j], n, a, b );
-        
-        
+            error[k_][j-1] = l2_error( ana[j], num[j], n, a, b );
         
         for ( int j=0; j<n_d; j++ )
+            mag[j] = l2_norm( ana[j], n, a, b ) + 1E-18;
+        
+        
+        for ( int j=1; j<n_d; j++ )
         for ( int i=0; i<n; i++ )
-            E[j][i] = log(abs(G[j][i])+1E-18);
+            err[j][i] = fabs( num[j][i] - ana[j][i] )/mag[j] ;
+        
+        for ( int j=1; j<n_d; j++ )
+            FFT( err[j], ft_err[j], n );
+        
+        for ( int j=1; j<n_d; j++ )
+        for ( int i=0; i<n/2+1; i++ )
+            err[j][i] = log(abs(ft_err[j][i]) +1E-18 );
         
         sprintf( fname, "/workspace/output/temp/%d", k_ );
-        output( E, n_d, n, fname );
-        
-        for ( int j=0; j<n_d; j++ )
-            FFT( G[j], Q[j], n );
-        
-        for ( int j=0; j<n_d; j++ )
-        for ( int i=0; i<n/2+1; i++ )
-            E[j][i] = log(abs(Q[j][i])+1E-18);
-        
-        sprintf( fname, "/workspace/output/temp/ft_%d", k_ );
-        output( E, n_d, n/2+1, fname );
+        output( err, n_d, n/2+1, fname );
         
         
         
-        ml_free(D, n_d);
-        ml_free(G, n_d);
+        
+        
+        ml_free( mag );
+        ml_free(ana, n_d);
+        ml_free(num, n_d);
+        ml_free(err, n_d);
     }
+    
+    
     
     //sprintf( fname, "/workspace/output/temp/%d", g );
     output ( error, k_max, n_d-1,  "/workspace/output/temp/out" );
     
-    
-    
     ml_free( error, k_max );    
-    
-    
-    
-    
-    
-    
-    
     
 }
 
