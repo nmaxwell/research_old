@@ -54,12 +54,15 @@ int main()
     
     laplacian( G0.array, G2.array, n1, n2, b1-a1, b2-a2 );
     
+    
     sprintf(fname, "/workspace/output/temp/out1.png" );
     plotGrid2D_1(G0,fname,cmap);
     sprintf(fname, "/workspace/output/temp/out2.png" );
     plotGrid2D_1(G1,fname,cmap);
     sprintf(fname, "/workspace/output/temp/out3.png" );
     plotGrid2D_1(G2,fname,cmap);
+    
+    
     
     
     std_exit();
