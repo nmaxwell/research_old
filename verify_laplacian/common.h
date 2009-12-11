@@ -32,3 +32,20 @@ double l2_norm( double *& data, int n, double a, double b)
 }
 
 
+double l2_error( double *& exact, double *& approx, int n1, int n2 )
+{
+    int m = n1*n2;
+    
+    double sum1 = 0.0;
+    for (int k=0; k<m; k++)
+	sum1 += (approx[k]-exact[k])*(approx[k]-exact[k]);
+    
+    double sum2 = 0.0;
+    for (int k=0; k<m; k++)
+	sum2 += exact[k]*exact[k];
+    
+    if ( sum2 > 0 )
+        return sqrt(sum1/sum2);
+    else
+        return sqrt(sum1);
+}

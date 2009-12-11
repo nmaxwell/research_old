@@ -1,4 +1,12 @@
 
+
+#define FFTW_PLAN_MODE FFTW_PATIENT
+
+#define N_FFT_THREADS  3
+
+
+
+
 #include <mathlib/math/std_math.h>
 #include <mathlib/math/grids/grid2D.h>
 #include <mathlib/math/transforms/fft.h>
@@ -20,50 +28,84 @@ ml_color cmap(double x)
 	return ml_color(s,s,s);
 }
 
-
-double gauss(  double x, double y )
+double gauss( double x, double y )
 {
     return exp(-x*x)*exp(-y*y);
 }
 
-double del2_gauss(  double x, double y )
+double del2_gauss( double x, double y )
 {
-    return (4.0*x*x+4.0*y*y-4.0)*gauss(x,y);
+    double r2 = x*x+y*y;
+    return 4.0*(r2-1.0)*exp(-x*x)*exp(-y*y);
 }
 
+double del4_gauss( double x, double y )
+{
+    double r2 = x*x+y*y;
+    return 16.0*(r2*(r2-4.0)+2.0)*exp(-x*x)*exp(-y*y);
+}
 
+double del6_gauss( double x, double y )
+{
+    double r2 = x*x+y*y;
+    return 64.0*( r2*(r2*(r2-9.0)+18.0) -6.0 )*exp(-x*x)*exp(-y*y);
+}
 
 
 int main()
 {
     std_setup();
     
+    double X0 = 40;
+    
     int n1 = 512;
-    int n2 = 512;
-    int a1 = -10;
-    int b1 = 10;
-    int a2 = -10;
-    int b2 = 10;
+    int n2 = n1;
+    double a1 = -X0;
+    double b1 = X0;
+    double a2 = -X0;
+    double b2 = X0;
     
     rgrid2D grid( n1, a1, b1,  n2, a2, b2 );
     
-    rgrid2D G0(grid), G1(grid), G2(grid);
+    rgrid2D A0(grid), A1(grid), A2(grid), A3(grid);
+    rgrid2D N1(grid), N2(grid), N3(grid);
     
-    G0 = gauss;
-    G1 = del2_gauss;
+    A0 = gauss;
+    A1 = del2_gauss;
+    A2 = del4_gauss;
+    A3 = del6_gauss;
     
-    laplacian( G0.array, G2.array, n1, n2, b1-a1, b2-a2 );
+    laplacian( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
+    laplacian( N1.array, N2.array, n1, n2, b1-a1, b2-a2 );
+    laplacian( N2.array, N3.array, n1, n2, b1-a1, b2-a2 );
     
+    cout << l2_error( A1.array, N1.array, n1, n2 ) << endl;
+    cout << l2_error( A2.array, N2.array, n1, n2 ) << endl;
+    cout << l2_error( A3.array, N3.array, n1, n2 ) << endl;
     
     sprintf(fname, "/workspace/output/temp/out1.png" );
-    plotGrid2D_1(G0,fname,cmap);
+    plotGrid2D_1(A0,fname,cmap);
     sprintf(fname, "/workspace/output/temp/out2.png" );
-    plotGrid2D_1(G1,fname,cmap);
+    plotGrid2D_1(N1,fname,cmap);
     sprintf(fname, "/workspace/output/temp/out3.png" );
-    plotGrid2D_1(G2,fname,cmap);
+    plotGrid2D_1(N2,fname,cmap);
+    sprintf(fname, "/workspace/output/temp/out4.png" );
+    plotGrid2D_1(N3,fname,cmap);
     
     
+    double t1,t2;
+    int n=10;
     
+    t1 = get_real_time();
+    
+    for (int j=0; j<n; j++)
+    {
+        laplacian( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
+    }
+    
+    t2 = get_real_time();
+    
+    cout << (t2-t1)/n << endl;
     
     std_exit();
 }

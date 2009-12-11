@@ -5,11 +5,14 @@
 
 #include <mathlib/link.cpp>
 
-color3 cmap(double x)
+#include <mathlib/non-lib_things.h>
+
+
+ml_color cmap(double x)
 {
 	x *= 10;
 	float s = atan(x)/pi+0.5;
-	return color3(s,s,s);
+	return ml_color(s,s,s);
 	
 }
 
@@ -19,18 +22,18 @@ int main()
 	
 	grid2D<> G;
 	
-	sprintf(fname,"%s/out_dat/C2.dat",pwd);
+	sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat" );
 	readFile(G,fname);
-	sprintf(fname,"%s/out_png/C2.png",pwd);
+	sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.png" );
 	plotGrid2D_1(G,fname,cmap);
 	
 	for( int n = 0; n<9000; n+=1)
 	{
-		cout << n << endl;
-		sprintf(fname,"%s/out_dat/u_%05d.dat",pwd,n);
+		sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/u_%05d.dat" ,n);
+        cout << fname << endl;
 		if ( readFile(G,fname) ) break;
 		
-		sprintf(fname,"%s/out_png/%05d.png",pwd,n);	    
+		sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_png/%05d.png" ,n);	    
 		plotGrid2D_1(G,fname,cmap);
 	}	
 }
