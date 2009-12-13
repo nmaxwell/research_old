@@ -1,8 +1,8 @@
 
 
-#define FFTW_PLAN_MODE FFTW_PATIENT
+//#define FFTW_PLAN_MODE FFTW_PATIENT
 
-#define N_FFT_THREADS  3
+#define N_FFT_THREADS  1
 
 
 
@@ -11,9 +11,12 @@
 #include <mathlib/math/grids/grid2D.h>
 #include <mathlib/math/transforms/fft.h>
 #include <mathlib/math/laplacian/laplacian.h>
+#include <mathlib/math/laplacian/laplacian_FD.h>
+#include <mathlib/math/laplacian/laplacian_hdaf.h>
+
 #include <mathlib/math/grids/extra/plots.cpp>
 
-#include "test1.cpp"
+#include "common.h"
 
 #include <mathlib/non-lib_things.h>
 
@@ -75,10 +78,21 @@ int main()
     A2 = del4_gauss;
     A3 = del6_gauss;
     
-    laplacian( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
-    laplacian( N1.array, N2.array, n1, n2, b1-a1, b2-a2 );
-    laplacian( N2.array, N3.array, n1, n2, b1-a1, b2-a2 );
+    //laplacian_2d_fd Del2;
+    //Del2.init( n1, n2, b1-a1, b2-a2, 24, 24 );
     
+    laplacian_2d_hdaf Del2;
+    Del2.init( n1, n2, b1-a1, b2-a2, 24, 24,  0.9, 0.9 );
+    
+    Del2.execute( A0.array, N1.array );
+    Del2.execute( N1.array, N2.array );
+    Del2.execute( N2.array, N3.array );
+    
+    //laplacian_2d_fft( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
+    //laplacian_2d_fft( N1.array, N2.array, n1, n2, b1-a1, b2-a2 );
+    //laplacian_2d_fft( N2.array, N3.array, n1, n2, b1-a1, b2-a2 );
+    
+    cout << endl;
     cout << l2_error( A1.array, N1.array, n1, n2 ) << endl;
     cout << l2_error( A2.array, N2.array, n1, n2 ) << endl;
     cout << l2_error( A3.array, N3.array, n1, n2 ) << endl;
@@ -92,7 +106,6 @@ int main()
     sprintf(fname, "/workspace/output/temp/out4.png" );
     plotGrid2D_1(N3,fname,cmap);
     
-    
     double t1,t2;
     int n=10;
     
@@ -100,7 +113,8 @@ int main()
     
     for (int j=0; j<n; j++)
     {
-        laplacian( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
+        //laplacian_2d_fft( A0.array, N1.array, n1, n2, b1-a1, b2-a2 );
+        Del2.execute( A0.array, N1.array );
     }
     
     t2 = get_real_time();
