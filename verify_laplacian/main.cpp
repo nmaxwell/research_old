@@ -78,11 +78,11 @@ int main()
     A2 = del4_gauss;
     A3 = del6_gauss;
     
-    //laplacian_2d_fd Del2;
-    //Del2.init( n1, n2, b1-a1, b2-a2, 24, 24 );
+    laplacian_2d_fd Del2;
+    Del2.init( n1, n2, b1-a1, b2-a2, 24, 24 );
     
-    laplacian_2d_hdaf Del2;
-    Del2.init( n1, n2, b1-a1, b2-a2, 24, 24,  0.9, 0.9 );
+  //  laplacian_2d_hdaf Del2;
+  //  Del2.init( n1, n2, b1-a1, b2-a2, 24, 24,  0.9, 0.9 );
     
     Del2.execute( A0.array, N1.array );
     Del2.execute( N1.array, N2.array );
@@ -105,6 +105,29 @@ int main()
     plotGrid2D_1(N2,fname,cmap);
     sprintf(fname, "/workspace/output/temp/out4.png" );
     plotGrid2D_1(N3,fname,cmap);
+    
+    
+    
+    
+    
+    for (int j=2; j<100; j++)
+    {
+        Del2.execute( N1.array, N2.array );
+        N1 = N2;
+        
+        cout << j << "\t" << log10(fabs(max(N2.array,n1*n2))) << endl;
+        //-log10(dfactorial[j*2])
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     double t1,t2;
     int n=10;
