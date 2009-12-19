@@ -1,13 +1,8 @@
 
-/*
-
-mencoder 'mf://*.png' -mf  fps=25:type=png -ovc copy -oac copy -o output.avi
-
-*/
-
-#define FFTW_PLAN_MODE FFTW_PATIENT
+//#define FFTW_PLAN_MODE FFTW_PATIENT
 
 #define N_FFT_THREADS  1
+
 
 #include <mathlib/math/std_math.h>
 
@@ -51,27 +46,24 @@ public:
     
     void init( grid2D<> & grid, int new_order, grid2D<> & C2_ )
     {
-        exp_order = new_order;
+        if ( new_order != exp_order )
+        {
+            exp_order = new_order;
             
-        if (U) delete [] U;
-        if (V) delete [] V;
-        U = new grid2D<> [exp_order+2];
-        V = new grid2D<> [exp_order+1];
-        
-        for (int k=0; k<=exp_order+1; k++ )
-            U[k] = grid;
-        
-        for (int k=0; k<=exp_order; k++ )
-            V[k] = grid;
-        
-        int n1 = grid.n1;
-        int n2 = grid.n2;
-        double L1 = grid.b1-grid.a1;
-        double L2 = grid.b2-grid.a2;
-        
-        Del2.init( n1, n2, L1, L2, 12, 12,  0.4, 0.4 );
-        
-        C2 = C2_; 
+            if (U) delete [] U;
+            if (V) delete [] V;
+            U = new grid2D<> [exp_order+2];
+            V = new grid2D<> [exp_order+1];
+            
+            int n1 = grid.n1;
+            int n2 = grid.n2;
+            double L1 = grid.b1-grid.a1;
+            double L2 = grid.b2-grid.a2;
+            
+            Del2.init( n1, n2, L1, L2, 12, 12,  0.3, 0.3 );
+            
+            C2 = C2; 
+        }
     }
     
     void operator() ( double t, grid2D<> & u0, grid2D<> & v0, grid2D<> & u1, grid2D<> & v1 )
@@ -107,13 +99,21 @@ public:
         v1 = 0.0;
         
         for (int n = 0; n<=exp_order; n++)
-        GRID2D_LINLOOP( u0 )
         {
-            u1[i] += U[n][i];
-            u1[i] += V[n][i]* t/(2.0*n+1.0);
-            
-            v1[i] += U[n+1][i]*((4.0*n+6.0)*n+2.0)/(t*(2.0*n+1.0));
-            v1[i] += V[n][i];
+            v1 += V[n];
+            u1 += U[n];
+        }
+        
+        for (int n = 0; n<=exp_order; n++)
+            V[n] *= t/(2*n+1);
+        
+        for (int n = 0; n<=exp_order; n++)
+            U[n+1] *= ((1.0/t)*(4*n*n+6*n+2))/(2*n+1);
+        
+        for (int n = 0; n<=exp_order; n++)
+        {
+            v1 += V[n];
+            u1 += U[n];
         }
     }
 };
@@ -122,46 +122,23 @@ public:
 class u_0_func : public functor2<double,double >
 {	
 public:
-	double operator() (double const & x, double const & y) const 
+	double operator() (double const & x1, double const & x2) const 
 	{
-    //    double k1 = 1.0;
-    //    double k2 = 0.0;
-    //    return cos( k1*x2+k2*x2 );
+        double k1 = 1.0;
+        double k2 = 0.0;
         
-    //      return exp(-x1*x1)*exp(-x2*x2);
-    
-        double x1 = x - 3;
-        double x2 = y + 5;
+        return cos( k1*x2+k2*x2 );
         
+	//	double s = sqrt(x1*x1+x2*x2);
+	//	if (s <= 0.5)
+	//		return cos(_2pi*s)+1.0;
+	//	else return 0.0;
         
-		double s = sqrt(x1*x1+x2*x2);
-        double a = 0.5;
-        
-		if (s <= 0.5*a)
-			return cos(ml_2pi*s/a)+1.0;
-		else return 0.0;
+     //   return exp(-x1*x1)*exp(-x2*x2);
 	}
 };
 
 
-
-class C2_func : public functor2<double,double >
-{	
-public:
-	double operator() (double const & x, double const & y) const 
-	{
-        if ( -9 <= x and x <= -6   and   -9 <= y and y <= -6   )
-            return 2.0;
-        
-        if ( 0 <= x and x <= 8   and   -2 <= y and y <= 3   )
-            return 3.0;
-        
-        if ( 0 <= x and x <= 8   and   4 <= y and y <= 5   )
-            return 6.0;
-        
-        return 1.0;
-	}
-};
 
 
 
@@ -171,11 +148,11 @@ int main()
 {
     std_setup();
     
-    int n = 512;
-    double x0 = 10; 
+    int n = 256;
+    double x0 = ml_pi;
     
-    double tf = 30.0;
-    double dt = 0.04;
+    double tf = 1.0;
+    double dt = 0.1;
     
     grid2D<double,double,double > grid( n,-x0,x0, n,-x0,x0 ),u,v,C2,damp;
     grid = 0.0;
@@ -184,16 +161,14 @@ int main()
     v = grid;
     C2 = grid;
     
+    C2 = 1.0;
     u = u_0_func();
-    C2 = C2_func();
-    C2 *= 5.0;
-    
     
     sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat", n);
     writeFile(C2,fname);
     
     linear_propagator P;
-    P.init( grid, 10, C2 );
+    P.init( grid, 1, C2 );
     
     double t = 0.0;
     
@@ -206,12 +181,9 @@ int main()
         P( dt, u,v,u,v );
         
         double t2 = get_real_time();        
-        cout << "step: " << t << "\t" << t2-t1 << "\t" << L2norm(u) << endl;
+        cout << t << "\t" << t2-t1 << endl;
         
         t += dt;
-        
-        if ( L2norm(u) < 1E10 ) continue;
-        else break;
     }
        
     output(t,u,v);
@@ -219,7 +191,15 @@ int main()
 
 
 /*
-
+        for (int n = 0; n<=exp_order; n++)
+        GRID2D_LINLOOP( u0 )
+        {
+            u1[i] += U[n][i];
+            u1[i] += V[n][i]* t/(2.0*n+1.0);
+            
+            v1[i] += U[n+1][i]*((4.0*n+6.0)*n+2.0)/(t*(2.0*n+1.0));
+            v1[i] += V[n][i];
+        }
 */
 
 
