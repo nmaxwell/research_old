@@ -5,9 +5,9 @@ mencoder 'mf://*.png' -mf  fps=25:type=png -ovc copy -oac copy -o output.avi
 
 */
 
-#define FFTW_PLAN_MODE FFTW_PATIENT
+// #define FFTW_PLAN_MODE FFTW_PATIENT
 
-#define N_FFT_THREADS  1
+#define N_FFT_THREADS  3
 
 #include <mathlib/math/std_math.h>
 
@@ -15,7 +15,7 @@ mencoder 'mf://*.png' -mf  fps=25:type=png -ovc copy -oac copy -o output.avi
 #include <mathlib/math/grids/grid_file.cpp>
 #include <mathlib/math/grids/extra/plots.cpp>
 
-#include <mathlib/math/laplacian/laplacian_hdaf.h>
+#include <mathlib/math/PDE/laplacian_hdaf.h>
 
 #include <mathlib/link.cpp>
 #include <mathlib/non-lib_things.h>
@@ -69,7 +69,7 @@ public:
         double L1 = grid.b1-grid.a1;
         double L2 = grid.b2-grid.a2;
         
-        Del2.init( n1, n2, L1, L2, 12, 12,  0.4, 0.4 );
+        Del2.init( n1, n2, L1, L2, 8, 8,  0.6, 0.6 );
         
         C2 = C2_; 
     }
@@ -130,8 +130,8 @@ public:
         
     //      return exp(-x1*x1)*exp(-x2*x2);
     
-        double x1 = x - 3;
-        double x2 = y + 5;
+        double x1 = x - 15;
+        double x2 = y - 5;
         
         
 		double s = sqrt(x1*x1+x2*x2);
@@ -150,16 +150,23 @@ class C2_func : public functor2<double,double >
 public:
 	double operator() (double const & x, double const & y) const 
 	{
-        if ( -9 <= x and x <= -6   and   -9 <= y and y <= -6   )
+/*        if ( -9 <= x and x <= -6   and   -9 <= y and y <= -6   )
             return 2.0;
         
         if ( 0 <= x and x <= 8   and   -2 <= y and y <= 3   )
             return 3.0;
         
         if ( 0 <= x and x <= 8   and   4 <= y and y <= 5   )
-            return 6.0;
+            return 6.0;*/
         
-        return 1.0;
+        
+        if (  18.0 <= y and y <= 19.5 )
+            return 7.0;
+        
+        if (  9 <= x and y <= 18.0 and y >= 12.75+0.25*x )
+            return 9.0;
+        
+        return 4.0;
 	}
 };
 
@@ -172,12 +179,12 @@ int main()
     std_setup();
     
     int n = 512;
-    double x0 = 10; 
+    //double x0 = 10;
     
     double tf = 30.0;
-    double dt = 0.04;
+    double dt = 0.03;
     
-    grid2D<double,double,double > grid( n,-x0,x0, n,-x0,x0 ),u,v,C2,damp;
+    grid2D<double,double,double > grid( n,0,30.0, n,0,30.0 ),u,v,C2,damp;
     grid = 0.0;
     
     u = grid;
@@ -186,16 +193,18 @@ int main()
     
     u = u_0_func();
     C2 = C2_func();
-    C2 *= 5.0;
+    //C2 *= 5.0;
     
     
-    sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat", n);
+    sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat" );
     writeFile(C2,fname);
     
     linear_propagator P;
-    P.init( grid, 10, C2 );
+    P.init( grid, 7, C2 );
     
     double t = 0.0;
+    
+    cout << "step: " << t << "\t" << L2norm(u) << endl;
     
     while (t <= tf)
     {
@@ -217,10 +226,6 @@ int main()
     output(t,u,v);
 }
 
-
-/*
-
-*/
 
 
 

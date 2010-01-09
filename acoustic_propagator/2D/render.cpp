@@ -17,6 +17,15 @@ ml_color cmap(double x)
 }
 
 
+ml_color cmap_C2(double x)
+{
+    //x -= 2800*2800;
+    x *= 10;
+	float s = atan(x)/pi+0.5;
+	return ml_color(s,s,s);
+	
+}
+
 
 int main()
 {
@@ -27,7 +36,7 @@ int main()
 	sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat" );
 	readFile(G,fname);
 	sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_png/C2.png" );
-	plotGrid2D_1(G,fname,cmap);
+	plotGrid2D_1(G,fname,cmap_C2);
 	
     
 	for( int n = 0; n<9000; n+=1)

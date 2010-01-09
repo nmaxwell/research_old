@@ -1,0 +1,109 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+\setlength\topmargin{-1in}
+\setlength{\oddsidemargin}{-0.5in}
+%\setlength{\evensidemargin}{1.0in}
+
+%\setlength{\parskip}{3pt plus 2pt}
+%\setlength{\parindent}{30pt}
+%\setlength{\marginparsep}{0.75cm}
+%\setlength{\marginparwidth}{2.5cm}
+%\setlength{\marginparpush}{1.0cm}
+\setlength{\textwidth}{7.5in}
+\setlength{\textheight}{10in}
+
+
+\usepackage{listings}
+
+
+
+
+\newcommand{\pset}[1]{ \mathcal{P}(#1) }
+
+
+\newcommand{\nats}[0] { \mathbb{N}}
+\newcommand{\reals}[0] { \mathbb{R}}
+\newcommand{\exreals}[0] {  [-\infty,\infty] }
+\newcommand{\eps}[0] {  \epsilon }
+\newcommand{\A}[0] { \mathcal{A} }
+\newcommand{\B}[0] { \mathcal{B} }
+\newcommand{\C}[0] { \mathcal{C} }
+\newcommand{\D}[0] { \mathcal{D} }
+\newcommand{\E}[0] { \mathcal{E} }
+\newcommand{\F}[0] { \mathcal{F} }
+\newcommand{\G}[0] { \mathcal{G} }
+
+\newcommand{\IF}[0] { \; \textrm{if} \; }
+\newcommand{\THEN}[0] { \; \textrm{then} \; }
+\newcommand{\ELSE}[0] { \; \textrm{else} \; }
+\newcommand{\AND}[0]{ \; \textrm{ and } \;  }
+\newcommand{\OR}[0]{ \; \textrm{ or } \; }
+
+\newcommand{\rimply}[0] { \Rightarrow }
+\newcommand{\limply}[0] { \Lefttarrow }
+\newcommand{\rlimply}[0] { \Leftrightarrow }
+\newcommand{\lrimply}[0] { \Leftrightarrow }
+
+\begin{document}
+
+\begin{flushleft}
+Research Documentation - Stochastic Differential Equations Applied to the Linear Wave Equation
+Nicholas Maxwell; Dr. Bodmann\\
+\end{flushleft}
+
+\begin{flushleft}
+\addvspace{5pt} \hrule
+\end{flushleft}	
+
+
+
+\section*{Part 1 - Preliminaries}
+
+\begin{flushleft}
+\underline{Pushforward measure:}
+\end{flushleft}
+
+\begin{flushleft}
+Given a measure space, $(X,\A,\mu)$, a measurable space, $(Y,\B)$, and an $(\A,\B)-$measurable function, $f:X \rightarrow Y$, we may construct a measure on $(Y,\B)$,  $f_*(\mu) := \mu \circ f^{-1}$.\\
+pf: (1) $\phi \in \B$, $f_*(\mu) (\phi) = \mu(F^{-1}(\phi)) = \mu(\phi) = 0$. \\
+(2) $\{ B_k \}_{k \in \nats } \in \B $, disjoint, $B := \cup_{k \in \nats} B_k$. $A := f^{-1}(B) = \cup_{k \in \nats} A_k $, $A_k := f^{-1}(B_k)$. Then $A \in \A$ by $f$ being $(\A,\B)-$measurable, and $\{ A_k \}_{k \in \nats }$ is disjoint because, when $E_1 \cap E_2 = \phi$, $E_1, E_2 \in \B$, $ \phi = f^{-1}(E_1 \cap E_2) = f^{-1}(E_1) \cap f^{-1}(E_2)$. Then, $f_*(\mu) ( \cup_{k \in \nats} B_k )$  = $\mu( f^{-1}( \cup_{k \in \nats} B_k ) )$ = $\mu( \cup_{k \in \nats} f^{-1}( B_k ) )$ = $\mu( \cup_{k \in \nats} A_k )$ = $ \sum_{k \in \nats } \mu( A_k ) $ = $ \sum_{k \in \nats } (f_*(\mu))( B_k ) $, by countable additivity of $\mu$. So $ (Y,\B,f_*(\mu))$ is a well defined measure space obtained by pushing forward $\mu$ via $f$.
+\end{flushleft}
+
+
+\begin{flushleft}
+\underline{Probability law of a Stochastic process:}
+\end{flushleft}
+
+\begin{flushleft}
+Given $(\Omega,\F,P)$ a probability space, and $T$ an index set, $(S, \A)$ a measurable space. Then $X: T \times \Omega \rightarrow S$ is a stochastic process when the $t-$section of $X$, $X_t(\omega) := X(t,\omega)$ is $(\F,\A)-$measurable for all $t \in T$. Let $S^T = \{ g: T \rightarrow S \}$. \\
+Each stochastic process, $X$ induces a function, $\Phi_X: \Omega \rightarrow S^T$ by $\Phi_X(\omega) := t \mapsto X(t,\omega)$, so $\Phi_X (\omega)$ is the $\omega-$section of $X$. We're interested in defining a measure on a suitable sigma algebra on $S^T$, by pushing forward $P$ via $\Phi_X$.
+\end{flushleft}
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
