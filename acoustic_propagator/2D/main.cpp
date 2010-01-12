@@ -30,26 +30,35 @@ void output(double t, grid2D< > & u, grid2D< > & v)
 	n++;
 }
 
+ml_color cmap_damp(double x)
+{
+    //x -= 2800*2800;
+    x *= 10;
+	float s = atan(x)/pi+0.5;
+	return ml_color(s,s,s);
+}
 
-class linear_propagator
+class acoustic_propagator
 {
 public:
     grid2D<double, double > * U;
     grid2D<double, double > * V;
     grid2D<double, double > C2;
+    grid2D<double, double > damping;
     int exp_order;
     laplacian_2d_hdaf Del2;
     
-    linear_propagator( ):exp_order(0),U(0),V(0),Del2(),C2() {}
+    acoustic_propagator( ):exp_order(0),U(0),V(0),Del2(),C2(),damping() {}
     
-    ~linear_propagator() {
+    ~acoustic_propagator() {
         if (U) delete [] U;
         if (V) delete [] V;
+        damping=0;
         U=0; V=0; exp_order=0; }
     
 public:
     
-    void init( grid2D<> & grid, int new_order, grid2D<> & C2_ )
+    void init( grid2D<> & grid, int new_order, grid2D<> & C2_, grid2D<> & damping_ )
     {
         exp_order = new_order;
             
@@ -69,17 +78,22 @@ public:
         double L1 = grid.b1-grid.a1;
         double L2 = grid.b2-grid.a2;
         
-        Del2.init( n1, n2, L1, L2, 8, 8,  0.6, 0.6 );
+        Del2.init( n1, n2, L1, L2, 8, 8,  0.8, 0.8 );
         
-        C2 = C2_; 
+        C2 = C2_;
+        damping = damping_;
+        
+        
+        sprintf(fname,"/workspace/research/acoustic_propagator/2D/damp.png" );
+        plotGrid2D_1(damping,fname,cmap_damp);
     }
     
-    void operator() ( double t, grid2D<> & u0, grid2D<> & v0, grid2D<> & u1, grid2D<> & v1 )
+    void operator() ( double t, grid2D<> & u0, grid2D<> & v0, grid2D<> & u1, grid2D<> & v1, bool damp = true )
     {
-        propagate( t, u0, v0, u1, v1 );
+        propagate( t, u0, v0, u1, v1, damp );
     }
     
-    void propagate( double t, grid2D<> & u0, grid2D<> & v0, grid2D<> & u1, grid2D<> & v1 )
+    void propagate( double t, grid2D<> & u0, grid2D<> & v0, grid2D<> & u1, grid2D<> & v1, bool damp = true )
     {
         u1.copy(u0);
         v1.copy(v0);
@@ -115,6 +129,15 @@ public:
             v1[i] += U[n+1][i]*((4.0*n+6.0)*n+2.0)/(t*(2.0*n+1.0));
             v1[i] += V[n][i];
         }
+        
+        if ( damp )
+        {
+            cout << '*';
+            for (int i=0; i<u1.n1; i++ )
+            for (int j=0; j<u1.n2; j++ )
+                u1(i,j) *= exp(-t*damping(i,j));
+        }
+        
     }
 };
 
@@ -129,9 +152,9 @@ public:
     //    return cos( k1*x2+k2*x2 );
         
     //      return exp(-x1*x1)*exp(-x2*x2);
-    
-        double x1 = x - 15;
-        double x2 = y - 5;
+        
+        double x1 = x + -0;
+        double x2 = y + 0;
         
         
 		double s = sqrt(x1*x1+x2*x2);
@@ -150,6 +173,18 @@ class C2_func : public functor2<double,double >
 public:
 	double operator() (double const & x, double const & y) const 
 	{
+        return 10.0;
+        
+        double xx = x - 5;
+        double yy = y;
+    
+        return 1.0/( 2.0 + xx*xx )+ 3.0;
+        
+        
+        
+        
+        
+        
 /*        if ( -9 <= x and x <= -6   and   -9 <= y and y <= -6   )
             return 2.0;
         
@@ -160,47 +195,59 @@ public:
             return 6.0;*/
         
         
-        if (  18.0 <= y and y <= 19.5 )
+ /*       if (  18.0 <= y and y <= 19.5 )
             return 7.0;
         
         if (  9 <= x and y <= 18.0 and y >= 12.75+0.25*x )
-            return 9.0;
+            return 9.0;*/
         
-        return 4.0;
+       // return 4.0;
 	}
 };
 
-
-
+class damping_func : public functor2<double,double >
+{	
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        double ax = 2.0;
+        double ay = 2.0;
+        
+        return  5.0/(cosh((x-10)/ax)*cosh((x+10)/ax)*cosh((y-10)/ay)*cosh((y+10)/ay));
+        
+	}
+};
 
 
 int main()
 {
     std_setup();
     
-    int n = 512;
+    int n = 256;
     //double x0 = 10;
     
     double tf = 30.0;
     double dt = 0.03;
     
-    grid2D<double,double,double > grid( n,0,30.0, n,0,30.0 ),u,v,C2,damp;
+    grid2D<double,double,double > grid( n,-10,10.0, n,-10,10.0 ),u,v,C2,damping;
     grid = 0.0;
     
     u = grid;
     v = grid;
     C2 = grid;
+    damping = grid;
     
     u = u_0_func();
     C2 = C2_func();
+    damping = damping_func();
     //C2 *= 5.0;
     
     
     sprintf(fname,"/workspace/output/acoustic_propagate_2d/out_dat/C2.dat" );
     writeFile(C2,fname);
     
-    linear_propagator P;
-    P.init( grid, 7, C2 );
+    acoustic_propagator P;
+    P.init( grid, 7, C2, damping );
     
     double t = 0.0;
     
