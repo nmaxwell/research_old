@@ -7,7 +7,7 @@ mencoder 'mf://*.png' -mf  fps=25:type=png -ovc copy -oac copy -o output.avi
 
 // #define FFTW_PLAN_MODE FFTW_PATIENT
 
-#define N_FFT_THREADS  3
+#define N_FFT_THREADS  1
 
 #include <mathlib/math/std_math.h>
 
@@ -32,7 +32,6 @@ void output(double t, grid2D< > & u, grid2D< > & v)
 
 ml_color cmap_damp(double x)
 {
-    //x -= 2800*2800;
     x *= 10;
 	float s = atan(x)/pi+0.5;
 	return ml_color(s,s,s);
@@ -132,7 +131,6 @@ public:
         
         if ( damp )
         {
-            cout << '*';
             for (int i=0; i<u1.n1; i++ )
             for (int j=0; j<u1.n2; j++ )
                 u1(i,j) *= exp(-t*damping(i,j));
@@ -153,7 +151,7 @@ public:
         
     //      return exp(-x1*x1)*exp(-x2*x2);
         
-        double x1 = x + -0;
+        double x1 = x - 7.0;
         double x2 = y + 0;
         
         
@@ -182,9 +180,6 @@ public:
         
         
         
-        
-        
-        
 /*        if ( -9 <= x and x <= -6   and   -9 <= y and y <= -6   )
             return 2.0;
         
@@ -210,11 +205,12 @@ class damping_func : public functor2<double,double >
 public:
 	double operator() (double const & x, double const & y) const 
 	{
-        double ax = 2.0;
-        double ay = 2.0;
+        double ax = 0.4;
+        double ay = 0.4;        
         
-        return  5.0/(cosh((x-10)/ax)*cosh((x+10)/ax)*cosh((y-10)/ay)*cosh((y+10)/ay));
-        
+        return  1500.0*( 1.0/(cosh((x-10)/ax)) +  1.0/(cosh((x+10)/ax)) + 1.0/(cosh((y-10)/ay)) +  1.0/(cosh((y+10)/ax))  );
+        //return  5.0/(cosh((x-10)/ax));
+        // +cosh((y-10)/ay)+cosh((y+10)/ay)
 	}
 };
 
@@ -226,8 +222,8 @@ int main()
     int n = 256;
     //double x0 = 10;
     
-    double tf = 30.0;
-    double dt = 0.03;
+    double tf = 10.0;
+    double dt = 0.05;
     
     grid2D<double,double,double > grid( n,-10,10.0, n,-10,10.0 ),u,v,C2,damping;
     grid = 0.0;
@@ -261,13 +257,14 @@ int main()
         
         P( dt, u,v,u,v );
         
-        double t2 = get_real_time();        
-        cout << "step: " << t << "\t" << t2-t1 << "\t" << L2norm(u) << endl;
+        double t2 = get_real_time();
+        
+        double mag = L2norm(u);
+        cout << "step: " << t << "\t" << t2-t1 << "\t" << mag << endl;
         
         t += dt;
         
-        if ( L2norm(u) < 1E10 ) continue;
-        else break;
+        if ( mag > 1E10 ) break;
     }
        
     output(t,u,v);
