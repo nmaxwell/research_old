@@ -57,11 +57,12 @@ struct grid_vec
         _2 = rhs;
     }
     
-    void operator *= ( grid &rhs )
+    void operator *= ( grid & rhs )
     {
         _1 *= rhs;
         _2 *= rhs;
     }
+    
 };
 
 struct grid_mat
@@ -286,6 +287,79 @@ public:
 
 
 
+class driver
+{
+public:
+    grid_vec * F;
+    int exp_order;
+    anis_diff_op Del;
+    
+    driver( ):exp_order(0),F(0),Del() {}
+    
+    ~driver() {
+        if (F) delete [] F;
+        F=0; exp_order=0; }
+    
+public:
+    
+    void init( grid2D<> & g, int new_order, grid * C, int m1, int m2, double gam1, double gam2 )
+    {
+        exp_order = new_order;
+        
+        if (F) delete [] F;
+        F = new grid_vec [exp_order+2];
+        
+        for (int k=0; k<exp_order+2; k++ )
+        {
+            F[k]._1 = g;
+            F[k]._2 = g;
+        }
+        
+        int n1 = g.n1;
+        int n2 = g.n2;
+        double L1 = g.b1-g.a1;
+        double L2 = g.b2-g.a2;
+        
+        Del.init( g, C, m1, m2, gam1, gam2  );
+    }
+    
+    void operator() ( double dt, grid_vec & f1, grid_vec & f2, grid_vec & u1, grid_vec & v1 )
+    {
+        drive( dt, f1, f2, u1, v1 );
+    }
+    
+    void drive( double dt, grid_vec & f1, grid_vec & f2, grid_vec & u1, grid_vec & v1 )
+    {
+	    F[0] = f1;
+        
+        for (int n = 1; n<=exp_order+1; n++)
+        {
+            Del.execute( F[n-1], F[n] );
+            
+            F[n] *= dt*dt/(4*n*n-2*n);
+        }
+        
+        for (int n = 0; n<=exp_order; n++)
+        GRID2D_LINLOOP( u1._1 )
+        {
+            u1._1[i] += (dt/2)*F[n]._1[i];
+            u1._2[i] += (dt/2)*F[n]._2[i];
+            
+            v1._1[i] += F[n+1]._1[i]*(double)((4*n+6)*n+2)/(2*(2*n+1));            
+            v1._2[i] += F[n+1]._2[i]*(double)((4*n+6)*n+2)/(2*(2*n+1));
+        }
+        
+        GRID2D_LINLOOP( u1._1 )
+        {
+	        u1._1[i] += (dt/2)*f2._1[i];
+            u1._2[i] += (dt/2)*f2._2[i];
+        }
+        
+    }
+};
+
+
+
 
 
 
@@ -303,11 +377,100 @@ void output(double t, grid_vec & u, grid_vec & v)
 }
 
 
+
+
+class C11_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_1111
+        
+        if ( -10 <= x <= -8 )
+			return 3.0;
+        if ( -8 <= x <= -7 )
+			return 1.0;
+        if ( -7 <= x <= -3 )
+			return 7.0;
+        if ( -3 <= x <= -0 )
+			return 2.0;
+        if ( 0 <= x <= 4 )
+			return 5.0;
+        if ( 4 <= x <= 6 )
+			return -2.0;
+        if ( 6 <= x <= 10 )
+			return 1.0;
+        
+        
+        return 3.0;
+	}
+};
+
+class C12_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_1122
+        
+        return -3.0;
+	}
+};
+
+class C13_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_1112
+        
+        return 0.1;
+	}
+};
+
+class C22_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_1222
+        
+        return 1.0;
+	}
+};
+
+class C23_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_2212
+        
+        return 1.3;
+	}
+};
+
+class C33_func : public functor2<double,double >
+{
+public:
+	double operator() (double const & x, double const & y) const 
+	{
+        // C_1212
+        
+        return 3.0;
+	}
+};
+
+
+
 class u1_func : public functor2<double,double >
 {	
 public:
 	double operator() (double const & x, double const & y) const 
 	{
+		return 0;
+		
+		
         double x1 = x - 3;
         double x2 = y + 5;
         
@@ -325,6 +488,9 @@ class u2_func : public functor2<double,double >
 public:
 	double operator() (double const & x, double const & y) const 
 	{
+		return 0;
+		
+		
         double x1 = x + 3;
         double x2 = y - 5;
         
@@ -338,88 +504,73 @@ public:
 };
 
 
-
-
-
-
-class C11_func : public functor2<double,double >
+class driving_func_1 : public functor2<double,double >
 {
 public:
-	double operator() (double const & x, double const & y) const 
-	{
-        // C_1111
-        
-        return 3.0;
-	}
-};
-
-class C12_func : public functor2<double,double >
-{
+	double t;
+	driving_func_1(double t):t(t) {}
+	
 public:
-	double operator() (double const & x, double const & y) const 
+	double operator() ( double const & x, double const & y) const 
 	{
-        // C_1122
+        double x1 = x - 5;
+        double x2 = y + 5;
         
-        return 0.0;
-	}
-};
-
-class C13_func : public functor2<double,double >
-{
-public:
-	double operator() (double const & x, double const & y) const 
-	{
-        // C_1112
+		double s = sqrt(x1*x1+x2*x2);
+        double a = 0.5;
         
-        return 3.0;
-	}
-};
-
-class C22_func : public functor2<double,double >
-{
-public:
-	double operator() (double const & x, double const & y) const 
-	{
-        // C_1222
-        
-        return 3.0;
-	}
-};
-
-class C23_func : public functor2<double,double >
-{
-public:
-	double operator() (double const & x, double const & y) const 
-	{
-        // C_2212
-        
-        return 0.0;
-	}
-};
-
-class C33_func : public functor2<double,double >
-{
-public:
-	double operator() (double const & x, double const & y) const 
-	{
-        // C_1212
-        
-        return 3.0;
+		if (s <= 0.5*a)
+			return (cos(ml_2pi*s/a)+1.0)*pow(cos(_2pi*t),2);
+		else return 0.0;
 	}
 };
 
 
+class driving_func_2 : public functor2<double,double >
+{
+public:
+	double t;
+	driving_func_2(double t):t(t) {}
+	
+public:
+	double operator() ( double const & x, double const & y) const 
+	{
+        double x1 = x + 5;
+        double x2 = y - 5;
+        
+		double s = sqrt(x1*x1+x2*x2);
+        double a = 0.5;
+        
+		if (s <= 0.5*a)
+			return (cos(ml_2pi*s/a)+1.0)*pow(sin(_2pi*t),2);
+		else return 0.0;
+	}
+};
 
+
+class damping_func : public functor2<double,double >
+{
+	
+public:
+	double operator() ( double const & x, double const & y) const 
+	{
+        double ax = 0.4;
+        double ay = 0.4;
+        
+        return  75.0*( 1.0/(cosh((x-10)/ax)) +  1.0/(cosh((x+10)/ax)) + 1.0/(cosh((y-10)/ay)) +  1.0/(cosh((y+10)/ax))  );
+	}
+};
 
 
 int main()
 {
     std_setup();
     
-    int n = 512;
+    int n = 256;
     double x0 = 10; 
+    int expansion_order = 10;
     
-    double tf = 10.0;
+    double tf = 30.0;
     double dt = 0.04;
     
     grid G( n,-x0,x0, n,-x0,x0 );
@@ -447,7 +598,25 @@ int main()
     v = 0.0;
     
     anisotropic_propagator P;
-    P.init( G, 10, C, 8, 8, 0.6, 0.6 );
+    P.init( G, expansion_order, C, 8, 8, 0.6, 0.6 );
+    
+    driver F;
+    F.init( G, expansion_order, C, 8, 8, 0.6, 0.6 );
+    
+    grid_vec f1,f2;
+    f1._1 = G;
+    f1._2 = G;
+    f2._1 = G;
+    f2._2 = G;
+    
+    grid D;
+    D = G;
+    D = damping_func();
+    
+    for (int i=0; i<G.n1; i++ )
+    for (int j=0; j<G.n2; j++ )
+		D(i,j) = exp(-dt*D(i,j));    
+    
     
     double t = 0.0;
     
@@ -455,9 +624,21 @@ int main()
     {
         output(t,u,v);
         
+        f1._1 = driving_func_1(t);
+        f1._2 = driving_func_2(t);
+        
+        f2._1 = driving_func_1(t+dt);
+        f2._1 = driving_func_1(t+dt);
+        
+        
         double t1 = get_real_time();
         
         P( dt, u,v, u,v );
+        
+        F( dt, f1, f2, u,v );
+        
+        u *= D;
+        v *= D;
         
         double t2 = get_real_time();
         
