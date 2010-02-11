@@ -386,21 +386,6 @@ public:
 	{
         // C_1111
         
-        if ( -10 <= x <= -8 )
-			return 3.0;
-        if ( -8 <= x <= -7 )
-			return 1.0;
-        if ( -7 <= x <= -3 )
-			return 7.0;
-        if ( -3 <= x <= -0 )
-			return 2.0;
-        if ( 0 <= x <= 4 )
-			return 5.0;
-        if ( 4 <= x <= 6 )
-			return -2.0;
-        if ( 6 <= x <= 10 )
-			return 1.0;
-        
         
         return 3.0;
 	}
