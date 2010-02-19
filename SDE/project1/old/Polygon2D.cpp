@@ -23,10 +23,9 @@ public:
     
 public:
     void set_inscribed_circle(int n, float radius, float x_center=0, float y_center=0, float theta_0=0 );
-    
+
 public:
     int interior_test(const float & x, const float & y);
-    
 };
 
 

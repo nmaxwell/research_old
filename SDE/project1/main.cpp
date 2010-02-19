@@ -10,52 +10,99 @@
 #include <mathlib/link.cpp>
 #include <mathlib/non-lib_things.h>
 
-
-
 #include "Polygon2D.cpp"
 
 
-double antideriv(double x, double z)
+
+
+
+bool straddle_test( float const & x1, float const & x2, float const & x3, float const & x4, float const & y1, float const & y2, float const & y3, float const & y4 )
 {
-    return z*log(z*z+x*x)/2 + atan(z/x)-z;
+    if ( max(x1,x2) < min(x3,x4) )
+        return false;
+    if ( max(x3,x4) < min(x1,x2) )
+        return false;
+    if ( max(y1,y2) < min(y3,y4) )
+        return false;
+    if ( max(y3,y4) < min(y1,y2) )
+        return false;
+    
+    float z1 = (x3-x1)*(y2-y1)-(y3-y1)*(x2-x1);
+    float z2 = (x4-x1)*(y2-y1)-(y4-y1)*(x2-x1);
+    
+    //if ( z1==0.f && z2==0.f ) return true;
+    
+    if ( (z1<0) ^ (z2<0) ) return true;
+    
+    return false;
 }
 
-
-
-
-double V_linecharge(double x_eval, double y_eval, double x1, double y1, double x2, double y2, double rho )
+int hitting_index( Polygon2D &boundary, float X1_0, float X2_0, double dt )
 {
-    x_eval -= x1;
-    y_eval -= y1;
-    x2 -= x1;
-    y2 -= y1;
+    static ml_random rng;
     
-    double L = sqrt(x2*x2+y2*y2);
-    if (fabs(L) >= 1E-12)
+    float W1 = X1_0;
+    float W2 = X2_0;
+    float dW1,dW2;
+    
+    float sqrt_dt = sqrt(dt);
+    int max_steps = 10000;
+    int step=0;
+    
+    while(true )
     {
-        x2 /= L;
-        y2 /= L;
+        step++;
+        if(step>max_steps)
+            return -1;
+        
+        rng.std_normal_rv(dW1,dW2);
+        
+        if ( !boundary.interior_test(W1+dW1, W2+dW2) )
+            break;
+        
+        W1 += dW1*sqrt_dt;
+        W2 += dW2*sqrt_dt;
     }
-    else return 0;
     
-    double x = (x_eval*y2-y_eval*x2);
-    double y = (x_eval*x2+y_eval*y2);
+    for (int k=0; k<boundary.n_points-1; k++ )
+    {
+        if ( straddle_test(
+            boundary.x_point(k), boundary.x_point(k+1), W1, W1+dW1,
+            boundary.y_point(k), boundary.y_point(k+1), W2, W2+dW2 ) )
+        {
+            return k;
+        }
+    }
     
+    return -1;
+}
+
+int fails = 0;
+
+double solve_laplace( double x, double y, Polygon2D &boundary, double *f, double dt, int n_trials )
+{
+    int n_bd = boundary.n_points-1;
+    int trial = 0;
+    double sum = 0;
     
-    /*
-    double a = sqrt(x*x+y*y)+y;
-    double b = sqrt(x*x+(y-L)*(y-L))+y-L;
+    while ( trial < n_trials )
+    {
+        int index = hitting_index( boundary, x, y, 0.1 );
+        if ( index >=0 and index<n_bd )
+        {
+            trial++;
+            sum += f[index];
+        }
+        else
+            fails += 1;
+    }
     
-    if (a >= 1E-12 and b >= 1E-12)
-        return rho*(log(a)-log(b));
-    else return 0;
-    */
-    
-    return antideriv(x,y)-antideriv(x,y-L);
+    return sum/n_trials;
 }
 
 
-float boundary_def(float & x, float & y, float & f, double t)
+
+float boundary_def(float & x, float & y, double & f, double t)
 {
 	// t \in [0,1]
 	
@@ -67,47 +114,17 @@ float boundary_def(float & x, float & y, float & f, double t)
 }
 
 
-ml_color color_map_green( double z )
-{
-	float x = atan((double)z)/pi+0.5;
-	return ml_color(0,x,0);
-}
-
-ml_color color_map_blue( double z )
-{
-	float x = atan((double)z)/pi+0.5;
-	return ml_color(0,0,x);
-}
-
-ml_color color_map_red( double z )
-{
-	float x = atan((double)z)/pi+0.5;
-	return ml_color(x,0,0);
-}
-
-
-double test_function( double x, double y )
-{
-    double s = sqrt(x*x+y*y);
-    if ( fabs(s) >= 1E-14 )
-        return log(s)/(-_2pi);
-    else return 0.0;
-}
-
-    
-
 
 int main()
 {
     std_setup();
     
-    ml_random rng;
+    
     
     
     int n_bd=500;
     Polygon2D boundary;
-    float * f = 0;
-    
+    double * f = 0;
     
     if (1)
     {
@@ -115,7 +132,7 @@ int main()
 		
 		//boundary.set_inscribed_circle(3, 7);
 		
-		f = ml_alloc<float> (n_bd);
+		f = ml_alloc<double> (n_bd);
 		boundary.init(n_bd+1);
 		
 		for (int k=0; k<n_bd; k++)
@@ -131,7 +148,7 @@ int main()
     {
         n_bd = 4;
         
-        f = ml_alloc<float> (n_bd);
+        f = ml_alloc<double> (n_bd);
         boundary.init(n_bd+1);
         
         f[0] = 0.0;
@@ -139,160 +156,48 @@ int main()
         f[2] = 0.0;
         f[3] = 0.0;
         
-        boundary.x_point(0) = -5.0;
-        boundary.y_point(0) = +5.0;
+        boundary.x_point(0) = -8.0;
+        boundary.y_point(0) = +8.0;
         
-        boundary.x_point(1) = +5.0;
-        boundary.y_point(1) = +5.0;
+        boundary.x_point(1) = +8.0;
+        boundary.y_point(1) = +8.0;
+
+        boundary.x_point(2) = +8.0;
+        boundary.y_point(2) = -8.0;
         
-        boundary.x_point(2) = +5.0;
-        boundary.y_point(2) = -5.0;
+        boundary.x_point(3) = -8.0;
+        boundary.y_point(3) = -8.0;
         
-        boundary.x_point(3) = -5.0;
-        boundary.y_point(3) = -5.0;
-        
-        boundary.x_point(4) = -5.0;
-        boundary.y_point(4) = +5.0;
+        boundary.x_point(4) = -8.0;
+        boundary.y_point(4) = +8.0;
     }
     
     
     
     
+    
+    plot2D plt( -10.0, 10.0, -10.0, 10.0, 512, 512 );
+    plt = ml_white;
+    
+    for (int i=0; i<plt.NX; i++)
+    for (int j=0; j<plt.NY; j++)
     {
-		// confirm interior point testing
-		
-		plot2D plt( -10.0, 10.0, -10.0, 10.0, 1000, 1000 );
-		plt = ml_white;
-		
-		plot( boundary, plt, ml_black );
-		
-		for (int i=0; i<plt.NX; i++)
-		for (int j=0; j<plt.NY; j++)
-		{
-			float x = plt.to_x(i);
-			float y = plt.to_y(j);
-			
-			if (boundary.interior_test(x,y))
-            {
-                if ( plt(i,j) == ml_white )
-                    plt.pxDot(i,j,1, ml_color(0.2f,0.2f,0.6f));
-                else
-                    plt.pxDot(i,j,1, ml_color(0.f,0.0f,0.0f));
-            }
-			else
-            {
-				if ( plt(i,j) == ml_white )
-                    plt.pxDot(i,j,1, ml_color(0.6f,0.2f,0.2f));
-                else
-                    plt.pxDot(i,j,1, ml_color(0.0f,0.0f,0.f));
-            }
-		}
-		
-		plt.png("/workspace/output/scratch/out.png");
-	}
-    
-    {
-		// output analytic solution
-		
-		plot2D plt( -10.0, 10.0, -10.0, 10.0, 1000, 1000 );
-        grid2D<double, double > F1( plt.NX, -10.0, 10.0, plt.NY, -10.0, 10.0 );
-        grid2D<double, double > F2( F1 );
-		plt = ml_white;
-		F1 = 0.0;
+        cout << i << "\t " << j << endl;
+        double x = plt.to_x(i);
+        double y = plt.to_y(j);
         
-		for (int k=0; k<n_bd; k++)
-			plt.ptLineThick( boundary.x_point(k),boundary.y_point(k), boundary.x_point(k+1), boundary.y_point(k+1), 5, color_map_red(f[k]) );
-            //plt.ptLine( boundary.x_point(k),boundary.y_point(k), boundary.x_point(k+1), boundary.y_point(k+1), color );
-        
-		for (int i=0; i<plt.NX; i++)
+        if (boundary.interior_test(x,y))
         {
-            cout << i << endl;
-            for (int j=0; j<plt.NY; j++)
-            {
-                float x = plt.to_x(i);
-                float y = plt.to_y(j);
-                
-                if (boundary.interior_test(x,y))
-                {
-                    double V = 0.0;
-                    for (int k=0; k<n_bd; k++)
-                        V += V_linecharge( x,y, boundary.x_point(k),boundary.y_point(k), boundary.x_point(k+1), boundary.y_point(k+1), f[k] );
-                    F1(i,j) = V;
-                    
-                    plt.set_px(i,j, color_map_green(V) );
-                }
-            }
+            double u = solve_laplace( x, y, boundary, f, 0.5, 20 );
+            
+            float s = atan( u )/pi+0.5;
+            plt.set_px(i,j, ml_color(0.f,0.f,s) );
         }
-        
-		plt.png("/workspace/output/scratch/analytic.png");
-        
-        {
-            F1 = test_function;
-        }
-        
-        plotGrid2D_1( F1,  "/workspace/output/scratch/analytic2.png", color_map_green );
-        
-        laplacian_2d_hdaf Del2;
-        Del2.init( F1.n1, F1.n2, F1.b1-F1.a1, F1.b2-F1.a2, 24, 24, .5, .5 );
-        
-        Del2.execute( F1.array, F2.array );
-        plotGrid2D_1( F2,  "/workspace/output/scratch/analytic3.png", color_map_green );
-        
-	}
+    }
     
-    
-    
-    
-    
+    cout << "fails: " << fails << endl;
     
     std_exit();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-
-double V_linecharge(double x_eval, double y_eval, double x1, double y1, double x2, double y2, double rho )
-{
-    x_eval -= x1;
-    y_eval -= y1;
-    x2 -= x1;
-    y2 -= y1;
-    
-    double L = sqrt(x2*x2+y2*y2);
-    if (fabs(L) >= 1E-12)
-    {
-        x2 /= L;
-        y2 /= L;
-    }
-    else return 0;
-    
-    double x = (x_eval*y2-y_eval*x2);
-    double y = (x_eval*x2+y_eval*y2);
-    double a = sqrt(x*x+y*y)+y;
-    double b = sqrt(x*x+(y-L)*(y-L))+y-L;
-    
-    if (a >= 1E-12 and b >= 1E-12)
-        return rho*(log(a)-log(b));
-    else return 0;
-}
-
-
-
-
-
-*/
 
