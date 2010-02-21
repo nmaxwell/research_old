@@ -109,11 +109,27 @@ float boundary_def(float & x, float & y, double & f, double t)
 	x = cos(t*_2pi)*(cos(t*_2pi*5)*2.5+6);
 	y = sin(t*_2pi)*(cos(t*_2pi*5)*2.5+6);
 	
-	f = cos(_2pi*t*15)*2.0 + sin(_2pi*t*13)*3.0+sin(_2pi*t*60)*7.0 ;
+	f = cos(_2pi*t*15)*2.0 + sin(_2pi*t*13)*3.0+0*sin(_2pi*t*60)*7.0 ;
     f *= 2.0;
 }
 
+ml_color color_map_green( double z )
+{
+	float x = atan((double)z)/pi+0.5;
+	return ml_color(0,x,0);
+}
 
+ml_color color_map_blue( double z )
+{
+	float x = atan((double)z)/pi+0.5;
+	return ml_color(0,0,x);
+}
+
+ml_color color_map_red( double z )
+{
+	float x = atan((double)z)/pi+0.5;
+	return ml_color(x,0,0);
+}
 
 int main()
 {
@@ -122,7 +138,7 @@ int main()
     
     
     
-    int n_bd=500;
+    int n_bd=150;
     Polygon2D boundary;
     double * f = 0;
     
@@ -178,6 +194,8 @@ int main()
     
     plot2D plt( -10.0, 10.0, -10.0, 10.0, 512, 512 );
     plt = ml_white;
+    for (int k=0; k<n_bd; k++)
+        plt.ptLineThick( boundary.x_point(k),boundary.y_point(k), boundary.x_point(k+1), boundary.y_point(k+1), 5, color_map_red(f[k]) );
     
     for (int i=0; i<plt.NX; i++)
     for (int j=0; j<plt.NY; j++)
@@ -188,13 +206,15 @@ int main()
         
         if (boundary.interior_test(x,y))
         {
-            double u = solve_laplace( x, y, boundary, f, 0.5, 20 );
+            double u = solve_laplace( x, y, boundary, f, 0.5, 200 );
             
             float s = atan( u )/pi+0.5;
             plt.set_px(i,j, ml_color(0.f,0.f,s) );
         }
     }
     
+    plt.png("/workspace/output/scratch/result.png");
+        
     cout << "fails: " << fails << endl;
     
     std_exit();
