@@ -4,7 +4,6 @@
 
 #include <mathlib/math/random/ml_random.h>
 #include <mathlib/math/grids/grid2D.h>
-//#include <mathlib/math/grids/grid2D_Del2_FD.h>
 #include <mathlib/math/grids/extra/plots.cpp>
 #include <mathlib/math/PDE/laplacian_hdaf.h>
 
@@ -57,31 +56,32 @@ bool straddle_test( float const & x1, float const & x2, float const & x3, float 
 
 int fails = 0;
 
-double solve_laplace( double x, double y, Polygon2D &boundary, double *f, double dt, int n_runs )
+double solve_laplace( double x, double y, Polygon2D &boundary, double *f, double dt, int n_trials )
 {
     static ml_random rng;
     
     int n_bd = boundary.n_points-1;
+    int trial = 0;
+    double sum = 0;
+    
+    float W1 = x;
+    float W2 = y;
+    float dW1,dW2;
+    
     float sqrt_dt = sqrt(dt);
     int max_steps = 10000;
+    int step=0;
     
-    float dW1,dW2,W1,W2;
-    
-    int run = 0;
-    double sum = 0.0;
-    
-    while ( run < n_runs )
+    while ( trial < n_trials )
     {
         int hitting_index = -1;
-        int step = 0;
-        
-        W1 = x;
-        W2 = y;
         
         {
-            while( step<max_steps )
+            while(true )
             {
                 step++;
+                if(step>max_steps)
+                    break;
                 
                 rng.std_normal_rv(dW1,dW2);
                 
@@ -105,14 +105,14 @@ double solve_laplace( double x, double y, Polygon2D &boundary, double *f, double
         
         if ( hitting_index >=0 and hitting_index<n_bd )
         {
-            run++;
+            trial++;
             sum += f[hitting_index];
         }
         else
             fails++;
     }
     
-    return sum/n_runs;
+    return sum/n_trials;
 }
 
 
@@ -163,11 +163,11 @@ int main()
     std_setup();
     
     
-    int n_bd=100;
+    int n_bd=50;
     Polygon2D boundary;
     double * f = 0;
     
-    if (1)
+    if (0)
     {
 		// setup boundary
 		
@@ -213,9 +213,6 @@ int main()
         boundary.y_point(4) = +8.0;
     }
     
-    int n_runs=10;
-    double dt = 0.1;
-    int eval_count = 0;
     
     int N = 256;
     
@@ -227,51 +224,10 @@ int main()
     {
         cout << i << "\t " << j << endl;
         
-        double x = u.x1(i);
-        double y = u.x2(j);
-        
-        if ( boundary.interior_test(x,y) )
-        {
-            u(i,j) = solve_laplace(  x,y, boundary, f, dt, n_runs );
-            eval_count++;
-        }
+        if ( boundary.interior_test(u.x1(i), u.x2(i)) )
+            //u(i,j) = solve_laplace(  u.x1(i), u.x2(i), boundary, f, 0.5, 20 );
+            u(i,j) = 1;
     }
-    
-    grid2D<> Du(u);
-    
-    laplacian_2d_hdaf Del2;
-    Del2.init( N,N, u.b1-u.a1, u.b2-u.a2, 12, 12, 0.5, 0.5 );
-    
-    Del2.execute( u.array, Du.array );
-    
-    
-    {
-        double sum = 0.0;
-        int count = 0;
-        
-        for (int i=0; i<N; i++)
-        for (int j=0; j<N; j++)
-        {
-            double x = u.x1(i);
-            double y = u.x2(j);
-            
-            if ( -1<=x and x<=1 and -1<=y and y<= 1 )
-            {
-                sum += fabs(Du(i,j));
-                count ++;
-            }
-        }
-        
-        cout << "error: " << sum/count << endl;
-    }
-    
-    
-    
-    
-    
-    // --------------------
-    
-    plotGrid2D_1( Du, "/workspace/output/SDE/project1/Du.png", color_map_red );
     
     
     plot2D plt( -10.0, 10.0, -10.0, 10.0, N, N);
@@ -284,12 +240,12 @@ int main()
     for (int j=0; j<N; j++)
     {
         if ( u(i,j) != 0.0 )
-            plt.set_px( i,j, color_map_blue( u(i,j) ) );
+            plt.set_px( i,j, color_map_green( u(i,j) ) );
     }
     
-    plt.png("/workspace/output/SDE/project1/u.png");
+    plt.png("/workspace/output/SDE/project1/result.png");
     
-    cout << "failure rate: " << 100.0*(double)fails/(eval_count*n_runs) << "%\n";
+    cout << "fails: " << fails << endl;
     
     std_exit();
 }

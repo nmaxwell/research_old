@@ -7,39 +7,27 @@ dir = "/workspace/output/SDE/test/"
 
 
 
-#X = read_file( dir + "X" )
+X = read_file( dir + "X" )
+M = read_file( dir + "M" )
 time = read_file( dir + "time" )
 Xm = read_file( dir + "X_mean" )
+Y = [ t*t/2 for t in time ]
+
+XM = read_file( dir + "XM" )
+QX = read_file( dir + "QX" )
 
 """
-for k in range(5):
+for k in range(4):
     plot( time, X[k])
 
 plot( time, Xm)
+plot( time, Y)
 show()
-
 """
 
+for k in range(1):
+    plot( time, X[k])
+plot( time, QX)
 plot( time, Xm)
 show()
-
-
-
-"""
-M = read_file( dir + "M" )
-for k in range(20):
-    plot( time, M[k])
-
-show()
-
-
-
-
-for k in range(20):
-    Y  = [ M[k][j]*X[k][j] for j,x in enumerate(X[k]) ]
-    plot( time, Y )
-
-show()
-"""
-
 
