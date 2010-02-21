@@ -123,23 +123,36 @@ double solve_laplace( double x, double y, Polygon2D &boundary, double *f, double
 
 
 
-/*
-void *threadFunc(void *args)
+
+void *compute_line(void *args)
 {
     double T0 = *(double*)args;
-    int tres = *(int*)((char*)args+8);    
+    int tres = *(int*)((char*)args+8);
     
-    for (int k=0; k<100; k++)
-    {
-        cout << "t\t" << (get_real_time()-T0)*tres << endl;
-    }
+    
+    
     
 	return NULL;
 }
 
-if (boundary.interior_test(u.x1(i), u.x2(i)))
-            u(i,j) = solve_laplace(  u.x1(i), u.x2(i), boundary, f, 0.5, 200 );
-*/
+
+
+    for (int j=0; j<N; j++)
+    {
+        cout << i << "\t " << j << endl;
+        
+        double x = u.x1(i);
+        double y = u.x2(j);
+        
+        if ( boundary.interior_test(x,y) )
+        {
+            u(i,j) = solve_laplace(  x,y, boundary, f, dt, n_runs );
+            eval_count++;
+        }
+    }
+    
+    
+    
 
 
 
@@ -213,11 +226,11 @@ int main()
         boundary.y_point(4) = +8.0;
     }
     
-    int n_runs=10;
+    int n_runs=40;
     double dt = 0.1;
     int eval_count = 0;
     
-    int N = 256;
+    int N = 1024;
     
     grid2D<> u( N, -10, 10, N, -10, 10 );
     u = 0.0;
