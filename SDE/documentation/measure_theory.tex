@@ -1,0 +1,110 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+\setlength\topmargin{-1in}
+\setlength{\oddsidemargin}{-0.5in}
+%\setlength{\evensidemargin}{1.0in}
+
+%\setlength{\parskip}{3pt plus 2pt}
+%\setlength{\parindent}{30pt}
+%\setlength{\marginparsep}{0.75cm}
+%\setlength{\marginparwidth}{2.5cm}
+%\setlength{\marginparpush}{1.0cm}
+\setlength{\textwidth}{7.5in}
+\setlength{\textheight}{10in}
+
+
+\usepackage{listings}
+
+
+
+
+\newcommand{\pset}[1]{ \mathcal{P}(#1) }
+
+
+\newcommand{\nats}[0] { \mathbb{N}}
+\newcommand{\reals}[0] { \mathbb{R}}
+\newcommand{\cmplxs}[0] { \mathbb{C}}
+\newcommand{\exreals}[0] {  [-\infty,\infty] }
+\newcommand{\eps}[0] {  \epsilon }
+\newcommand{\A}[0] { \mathcal{A} }
+\newcommand{\B}[0] { \mathcal{B} }
+\newcommand{\C}[0] { \mathcal{C} }
+\newcommand{\D}[0] { \mathcal{D} }
+\newcommand{\E}[0] { \mathcal{E} }
+\newcommand{\F}[0] { \mathcal{F} }
+\newcommand{\G}[0] { \mathcal{G} }
+\newcommand{\cS}[0] { \mathcal{S} }
+
+\newcommand{\om}[0] { \omega }
+\newcommand{\Om}[0] { \Omega }
+
+\newcommand{\Bl}[0] { \mathcal{B} \ell }
+
+
+
+\newcommand{\IF}[0] { \; \textrm{if} \; }
+\newcommand{\THEN}[0] { \; \textrm{then} \; }
+\newcommand{\ELSE}[0] { \; \textrm{else} \; }
+\newcommand{\AND}[0]{ \; \textrm{ and } \;  }
+\newcommand{\OR}[0]{ \; \textrm{ or } \; }
+
+\newcommand{\rimply}[0] { \Rightarrow }
+\newcommand{\limply}[0] { \Lefttarrow }
+\newcommand{\rlimply}[0] { \Leftrightarrow }
+\newcommand{\lrimply}[0] { \Leftrightarrow }
+
+\newcommand{\rarw}[0] { \rightarrow }
+\newcommand{\larw}[0] { \leftarrow }
+
+\begin{document}
+
+\begin{flushleft}
+Notes on complex measures, etc. \\
+Nicholas Maxwell\\
+\end{flushleft}
+
+\begin{flushleft}
+\addvspace{5pt} \hrule
+\end{flushleft}	
+
+
+A complex or a finite and signed measure is a on a measurable space $(X,\A)$ is a function, $\nu$, from $\A$ to $\reals$ or $\cmplxs$ such that
+
+1) $\nu(\phi) = 0$
+
+2) $\nu( \cup_{k\in \nats} E_k ) = \sum_{k \in \nats} \nu(E_k) $, $E_k \in A$, disjoint.  \\
+
+Because the union in (2) is independent of the labeling of the $\{ E_k \}$, the sum in (2) is rearangement-invariant, which implies that it converges iff it does so absolutely, and does to the same number.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
