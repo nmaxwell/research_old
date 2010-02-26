@@ -63,7 +63,7 @@ for p in range(2,10+1):
 
 print 'looping over n_runs, no drift = t**2: \n'
 
-for p in range(2,10+1):
+for p in range(2,20+1):
     
     n_runs=2**p
     n_steps=512
@@ -72,34 +72,25 @@ for p in range(2,10+1):
     
     print 'n_steps: ', n_steps, '\nn_runs: ', n_runs
     
-    results = run_sde( n_runs = 500, n_steps=n_steps, X0=0.0, stop_time=2.0, drift=drift )
+    results = run_sde( n_runs=n_runs, n_steps=n_steps, X0=0.0, stop_time=2.0, drift=drift )
     
     time = results['time']
     M = results['M']
     X = results['X']
+    PX = results['PX']
+    QX = results['QX']
+    VX = results['VX']
     
-    X2= X*X
+    idrift = lambda t: (t**3)/3.0
     
-    PM = mean(M,0)
-    PX = mean(X,0)
-    QX = mean(X*M,0)
-    QX2 = mean(X*X*M,0)
-    VX = QX2-QX**2
-    
-    plt.plot(time, PX, time, [drift(t) for t in time])
+    plt.plot(time, PX, time, [ idrift(t) for t in time])
     plt.savefig( dir + "out/" + "PX_" + '%02d' % p )
     plt.clf()
     plt.plot(time, QX)
     plt.savefig( dir + "out/" + "QX_" + '%02d' % p )
     plt.clf()
-    plt.plot(time, QX2)
-    plt.savefig( dir + "out/" + "QX2_" + '%02d' % p )
-    plt.clf()
-    plt.plot(time, VX)
+    plt.plot(time, VX, time, time)
     plt.savefig( dir + "out/" + "VX_" + '%02d' % p )
-    plt.clf()
-    plt.plot(time, PM)
-    plt.savefig( dir + "out/" + "PM_" + '%02d' % p )
     plt.clf()
     
     print "rms(X_mean): ", rms(QX)

@@ -25,8 +25,15 @@ def run_sde(n_runs = 100, n_steps=100, X0=0.0, stop_time=1.0, drift=lambda t: 0.
     
     X = array(read_file( dir + "X" ))
     M = array(read_file( dir + "M" ))
+    PX = array(read_file( dir + "PX" ))
+    QX = array(read_file( dir + "QX" ))
+    VX = array(read_file( dir + "VX" ))
     
-    return { 'time': time, 'X': X, 'M': M, 'drift': drift }
+    return { 'time': time, 'X': X, 'M': M, 'drift': drift, 'PX': PX, 'QX': QX, 'VX': VX }
+
+
+
+
 
 
 

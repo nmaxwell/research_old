@@ -103,6 +103,7 @@ int main( int argc, char *argv[] )
         }
     }
     
+//    cout << "\trun.cpp:" << n_runs << "\t" << n_steps << endl;
     
     double dt = stop_time/n_steps;
     
@@ -146,23 +147,65 @@ int main( int argc, char *argv[] )
     // compute the Girsanov change of measure at every t
     
     for ( int run=0; run<n_runs; run++ )
-    for ( int k=0; k<n_steps-1; k++ )
     {
-        double sum1 = 0;
-        for (int j=0; j<=k; j++)
-            sum1 += drift[j]*drift[j]*dt;
-        
-        double sum2 = 0;
-        for (int j=0; j<=k; j++)
-            sum2 += drift[j]*(W[run][j+1]-W[run][j]);
-        
-        M[run][k] = exp(-sum2 -0.5*sum1);
+        M[run][0] = 0.0;
+        for ( int step=1; step<n_steps-1; step++ )
+            M[run][step] = M[run][step-1] -drift[step]*drift[step]*dt/2 - drift[step]*(W[run][step+1]-W[run][step]);
     }
     
+    for ( int run=0; run<n_runs; run++ )    
+        M[run][n_steps-1] = M[run][n_steps-2] -drift[n_steps-1]*drift[n_steps-1]*dt/2 - drift[n_steps-1]*(W[run][n_steps-1]-W[run][n_steps-2]);
+    
+    for ( int run=0; run<n_runs; run++ )
+    for ( int step=0; step<n_steps; step++ )
+        M[run][step] = exp(M[run][step]);
+    
+    
     sprintf(fname, "%s/X", dir );
-    output( X, max(n_runs,min(100,n_runs)), n_steps, "/workspace/output/SDE/test/X" );
+    output( X, min(n_runs,1024), n_steps, fname );
     sprintf(fname, "%s/M", dir );
-    output( M, max(n_runs,min(100,n_runs)), n_steps, "/workspace/output/SDE/test/M" );
+    output( M, min(n_runs,1024), n_steps, fname );
+    
+    
+    
+    double *PX = ml_alloc<double> ( n_steps );
+    double *QX = ml_alloc<double> ( n_steps );
+    double *QX2 = ml_alloc<double> ( n_steps );
+    double *VX = ml_alloc<double> ( n_steps );
+    
+    for ( int step=0; step<n_steps; step++ )
+    {
+        double sum=0;
+        for ( int run=0; run<n_runs; run++ )
+            sum += X[run][step];
+        PX[step] = sum/n_runs;
+    }
+    
+    for ( int step=0; step<n_steps; step++ )
+    {
+        double sum=0;
+        for ( int run=0; run<n_runs; run++ )
+            sum += X[run][step]*M[run][step];
+        QX[step] = sum/n_runs;
+    }
+    
+    for ( int step=0; step<n_steps; step++ )
+    {
+        double sum=0;
+        for ( int run=0; run<n_runs; run++ )
+            sum += X[run][step]*X[run][step]*M[run][step];
+        QX2[step] = sum/n_runs;
+    }
+    
+    for ( int step=0; step<n_steps; step++ )
+        VX[step] = QX2[step]-QX[step]*QX[step];
+    
+    sprintf(fname, "%s/PX", dir );
+    output( PX, n_steps, fname );
+    sprintf(fname, "%s/QX", dir );
+    output( QX, n_steps, fname );
+    sprintf(fname, "%s/VX", dir );
+    output( VX, n_steps, fname );
     
     ml_free( X, n_runs );
     ml_free( W, n_runs );
