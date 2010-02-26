@@ -25,8 +25,11 @@ int main()
 {
 	std_setup();
     
+    
+    // setup:
+    
     int n_steps = 500;
-    int n_runs = 1000;
+    int n_runs = 10000;
     
     double X0 = 0.0;
     double stop_time = 2.0;
@@ -37,13 +40,33 @@ int main()
     for (int k=0; k<n_steps; k++ )
         time[k] = dt*k;
     
+    
+    
     double **W=0, *X_true=0;
     double **X = ml_alloc<double> ( n_runs, n_steps );
     double * X_mean = ml_alloc<double> (n_steps);
-    
     double **M = ml_alloc<double> ( n_runs, n_steps );
     
+    
+    
+    // generate the BMs:
+    
     gen_BM( dt, n_steps, W, n_runs, BM_mode_2 );
+    
+    
+    // integrate the SDE
+    
+    for ( int run=0; run<n_runs; run++ )
+    {
+        X[run][0] = X0;
+			
+        for ( int j=1; j<n_steps; j++ )
+        {
+			X[run][j] = X[run][j-1] + ( drift(dt*j) + drift(dt*(j-1)) )*dt/2 + volatility(X[run][j-1], dt*(j-1))*(W[run][j]-W[run][j-1]);
+        }
+    }
+    
+    // compute the Girsanov change of measure at every t
     
     for ( int run=0; run<n_runs; run++ )
     for ( int k=0; k<n_steps-1; k++ )
@@ -59,15 +82,7 @@ int main()
         M[run][k] = exp(-sum2 -0.5*sum1);
     }
     
-    for ( int run=0; run<n_runs; run++ )
-    {
-        X[run][0] = X0;
-			
-        for ( int j=1; j<n_steps; j++ )
-        {
-			X[run][j] = X[run][j-1] + ( drift(dt*j) + drift(dt*(j-1)) )*dt/2 + volatility(X[run][j-1], dt*(j-1))*(W[run][j]-W[run][j-1]);
-        }
-    }
+    // compute expectation of X, output results so far.
     
     for ( int step=0; step<n_steps; step++ )
         X_mean[step] = 0;
@@ -80,6 +95,9 @@ int main()
     output( X_mean, n_steps, "/workspace/output/SDE/test/X_mean" );
     output( time, n_steps, "/workspace/output/SDE/test/time" );
     output( M, max(n_runs,min(100,n_runs)), n_steps, "/workspace/output/SDE/test/M" );
+    
+    
+    // compute expectation of X, with respect to new measure, output results.
     
     for ( int run=0; run<n_runs; run++ )
     for ( int step=0; step<n_steps; step++ )
@@ -95,6 +113,11 @@ int main()
     
     output( X, max(n_runs,min(100,n_runs)), n_steps, "/workspace/output/SDE/test/XM" );
     output( X_mean, n_steps, "/workspace/output/SDE/test/QX" );
+    
+    
+    
+    
+    
     
     ml_free( X, n_runs );
     ml_free( X_mean );

@@ -13,6 +13,8 @@ public:
     Polygon2D():x_points(0),y_points(0),n_points(0) {}
     ~Polygon2D();
     
+    void operator= (Polygon2D const & rhs);
+    
     void deallocate();
     void init(int n_points);
     void debug(bool display_data=false);
@@ -28,6 +30,23 @@ public:
     int interior_test(const float & x, const float & y);
     
 };
+
+
+
+void Polygon2D::operator= (Polygon2D const & rhs)
+{
+    this->init( rhs.n_points );
+    for (int k=0; k<n_points; k++)
+    {
+        x_points[k] = rhs.x_points[k];
+        y_points[k] = rhs.y_points[k];
+    }
+    
+}
+
+
+
+
 
 
 
