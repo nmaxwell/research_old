@@ -79,9 +79,8 @@ float distance_squared( float const & X11, float const & X12, float const & X21,
 
 void drift( float & x, float & y, float t )
 {
-    x = 1.0;
-    y = 1.0;
-    
+    x = 0.5;
+    y = 0.5;
 }
 
 
@@ -118,12 +117,12 @@ int solve_laplace( double &u, float x, float y, Polygon2D &boundary, double *f, 
             
             drift( V1, V2, time );
             
-            if ( boundary.interior_test(W1+V1+dW1*sqrt_dt, W2+V2+dW2*sqrt_dt) )
+            if ( boundary.interior_test(W1+V1*dt+dW1*sqrt_dt, W2+V2*dt+dW2*sqrt_dt) )
             {
-            	W1 += V1+ dW1*sqrt_dt;
-            	W2 += V2+ dW2*sqrt_dt;
+            	W1 += V1*dt+ dW1*sqrt_dt;
+            	W2 += V2*dt+ dW2*sqrt_dt;
                 
-                M += -(V1*dW1+V2*dW2)+ -.5*(V1*V1+V2*V2)*dt;
+                M += -(V1*dW1+V2*dW2) + -.5*(V1*V1+V2*V2)*dt;
             }
             else
             {
@@ -243,7 +242,7 @@ int main()
     std_setup();
     
     
-    int n_bd=200;
+    int n_bd=100;
     Polygon2D boundary;
     double * f = 0;
     
@@ -299,7 +298,7 @@ int main()
     
     
     
-    int n_runs=400;
+    int n_runs=10;
     double dt = 0.1;
     int N = 256;
     
@@ -309,12 +308,7 @@ int main()
     int eval_count =0;
     int failed_runs =0;
     
-    
-    
-    int n_threads = 64;
-  /*  thread_args *args= new thread_args [n_threads];
-    pthread_t *pth = new pthread_t [n_threads];
-    bool *threads_created = new bool [n_threads];*/
+    int n_threads = 2;
     
     thread_args args[n_threads];
     pthread_t pth[n_threads];
@@ -370,6 +364,45 @@ int main()
     	eval_count += args[thread].eval_count;
     	failed_runs += args[thread].failed_runs;
     }
+    
+    
+    int n_smooth = 32;
+    grid2D<> u_smooth( u );
+    
+    for ( int i=0; i<u.n1; i++ )
+    for ( int j=0; j<u.n2; j++ )
+    {
+        if ( boundary.interior_test(u.x1(i),u.x2(j)))
+        {
+            double sum = 0;
+            int n = 0;
+            
+            for ( int k=-n_smooth; k<=n_smooth; k++ )
+            for ( int l=-n_smooth; l<=n_smooth; l++ )
+            {
+                if (boundary.interior_test( u.x1(i+k) , u.x2(i+l) ))
+                    sum += u(i+k,j+l);
+                n++;
+            }
+            
+            if (n>0)
+                u_smooth(i,j) = sum/n;
+            else
+                u_smooth(i,j) = u(i,j);
+        }
+        else
+            u_smooth(i,j) = u(i,j);
+    }
+    
+    u = u_smooth;
+    
+    
+    
+    
+    
+    
+    
+    
     
     grid2D<> Du(u);
     
