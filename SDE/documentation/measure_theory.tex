@@ -25,11 +25,14 @@
 
 
 \newcommand{\pset}[1]{ \mathcal{P}(#1) }
-
+\newcommand{\partset}[1]{ \mathcal{P}^{*}(#1) }
+\newcommand{\st}[0]{ \textrm{ s.t. } }
+\newcommand{\fall}[0] { \textrm{ for all } }
 
 \newcommand{\nats}[0] { \mathbb{N}}
 \newcommand{\reals}[0] { \mathbb{R}}
 \newcommand{\cmplxs}[0] { \mathbb{C}}
+\newcommand{\complexes}[0] { \mathbb{C}}
 \newcommand{\exreals}[0] {  [-\infty,\infty] }
 \newcommand{\eps}[0] {  \epsilon }
 \newcommand{\A}[0] { \mathcal{A} }
@@ -39,6 +42,7 @@
 \newcommand{\E}[0] { \mathcal{E} }
 \newcommand{\F}[0] { \mathcal{F} }
 \newcommand{\G}[0] { \mathcal{G} }
+\newcommand{\M}[0] { \mathcal{M} }
 \newcommand{\cS}[0] { \mathcal{S} }
 
 \newcommand{\om}[0] { \omega }
@@ -46,7 +50,11 @@
 
 \newcommand{\Bl}[0] { \mathcal{B} \ell }
 
+\newcommand{\Ell}[0] { \mathcal{L} }
 
+
+\renewcommand{\Re}{ \operatorname{Re} }
+\renewcommand{\Im}{ \operatorname{Im} }
 
 \newcommand{\IF}[0] { \; \textrm{if} \; }
 \newcommand{\THEN}[0] { \; \textrm{then} \; }
@@ -62,6 +70,7 @@
 \newcommand{\rarw}[0] { \rightarrow }
 \newcommand{\larw}[0] { \leftarrow }
 
+
 \begin{document}
 
 \begin{flushleft}
@@ -73,14 +82,233 @@ Nicholas Maxwell\\
 \addvspace{5pt} \hrule
 \end{flushleft}	
 
+For $\A$ a sigma algebra, $E \in \A$, define $\partset{E, \A} := \{ \{ E_k \in \A; k \in \nats \}; E = \cup_k E_k, E_i \cap E_j = \phi \;  \forall i \not = j \}$. Always $ \{ \phi, E \} \in \partset{E, \A}$, so $\partset{E, \A}$ is never empty, and also $\partset{\phi, \A} = \{ \phi \}$. \\
 
-A complex or a finite and signed measure is a on a measurable space $(X,\A)$ is a function, $\nu$, from $\A$ to $\reals$ or $\cmplxs$ such that
+
+
+A complex or a signed and finite measure on a measurable space $(X,\A)$ is a function, $\nu$, from $\A$ to $\reals$ or $\cmplxs$ such that
 
 1) $\nu(\phi) = 0$
 
 2) $\nu( \cup_{k\in \nats} E_k ) = \sum_{k \in \nats} \nu(E_k) $, $E_k \in A$, disjoint.  \\
 
-Because the union in (2) is independent of the labeling of the $\{ E_k \}$, the sum in (2) is rearangement-invariant, which implies that it converges iff it does so absolutely, and does to the same number.
+Because the union in (2) is independent of the labeling of the $\{ E_k \}$, the sum in (2) is rearangement-invariant, which implies that it converges iff it does so to absolutely, and does to the same number. \\
+
+Alternatively, a complex measure $\nu$ on $(X,\A)$ is a complex function on $\A$ such that
+
+3) $\nu(E) = \sum_{k \in \nats} \nu(E_k), \fall \{ E_k\} \in \partset{E, \A}$.\\
+
+$(3 \rimply 1), \phi = E = \cup_k E_k \rimply E_k = \phi. \rimply \nu(\phi) = \sum_{k \in \nats } \nu(\phi) \rimply \nu(\phi) = 0.$ $(3 \lrimply 2), E := \cup_k E_k.$ \\
+
+
+
+Write $\M(X,\A)$ or $\M(\A)$ for the set of all complex or signed and finite measures on $\A$.
+Write $\M^\pm(X,\A)$ or $\M^\pm(\A)$ for the set of all signed and finite measures on $\A$.
+Write $\M^+(X,\A)$ or $\M^+(\A)$ for the set of all positive measures on $\A$. 
+Positive measures need not be finite, so $\M^+(\A) \not \subset \M(\A)$.
+\\
+
+
+
+If $\mu_1,\mu_2 \in \M^+(\A)$, then we say that $\mu_1 \le \mu_2$ iff $\mu_1(E) \le \mu_2(E)$ for all $E \in \A$.\\
+
+Given $\nu \in \M(\A)$, we wish to find the smallest $\mu \in \M^+(\A)$ s.t.
+
+$$
+     \mu(E)  \ge |\nu(E)| \fall E \in \A  \; {}^{(\dagger_1)},
+$$
+ 
+\noindent
+smallest in the sense of the previous point. When ${(\dagger_1)}$ holds we say that $\mu$ dominates $\nu$.  Let $\{ E_k \} \in \partset{E,\A}$ arbitrarily, we then have that $|\nu(E_k)| \le \mu(E_k)$ for all $E_k$ by ${(\dagger_1)}$, summing these gives 
+
+$$
+\mu(E) = \sum_{k \in \nats} \mu(E_k) \ge \sum_{k \in \nats} |\nu(E_k)| \ge | \nu(E)|, \; \fall \{ E_k\} \in \partset{E, \A}.
+$$
+
+\noindent
+Thus, for any $\mu$ dominating $\nu$, we can find a $\sum_{k \in \nats} |\nu(E_k)|$ not strictly between any $\mu(E)$ and $|\nu(E)|$. So the best we could do, in the sense of minimizing ${(\dagger_1)}$, is $\sum_{k \in \nats} |\nu(E_k)|$, for some $ \{ E_k\} \in \partset{E, \A}$ which minimizes this quantity. This suggests the definition\\
+
+$$
+|\nu|(E) := \sup \left\{  \sum_{k \in \nats} |\nu(E_k)| ; \; \{ E_k\} \in \partset{E, \A}  \right\}.
+$$
+
+\noindent   
+Briefly, ${(\dagger_1)}$ holds because this $\sup$ is an upper bound, and the ``smallest'' criterion holds because the $\sup$ is the smallest such upper bound. This quantity is called the total variation measure of $\nu$. \\
+
+
+
+
+
+
+$(X, \A)$ measurable, $\nu \in \M(X,\A)$, then $|\nu| \in \M^+(X, \A)$, and $|\nu| \le \mu$ for all $\mu  \in \M^+(X, \A)$ satisfying  $\mu(E)  \ge |\nu(E)| \fall E \in \A \; {}^{(\dagger_1)} $. \\
+
+
+Proof: \\
+
+\noindent
+First, for $E \in \A$, let $ F = \{  \sum_{k \in \nats} |\nu(E_k)| ; \; \{ E_k\} \in \partset{E, \A}  \}$ is a well defined set, because $\partset{E, \A} \subset \A$, so that these sums are well defined. Note that $F \subset \reals$, if $F$ is unbounded, then $|\nu|(E) = \infty$, otherwise $F$ is bounded and this $\sup(F) \in \reals$ exists. \\
+
+
+\noindent
+ $\partset{\phi, \A} = \{ \phi \} \rimply |\nu|(\phi) = |\nu(\phi)| = 0$. 
+
+\noindent 
+For any $\{ E_i \} \in \partset{E, \A}$, that $|\nu|(E) = \sum_{i \in \nats} |\nu|(E_i)$ follows by ``$\le$'' and ``$\ge$'' cases. \\
+
+
+\noindent
+
+
+\noindent
+``$\ge$'': If $|\nu|(E) = \infty$ then this case always holds, so assume $|\nu|(E) < \infty$. $\{ E_i \} \in \partset{ E, \A }$ is given. Pick $\{ t_i \in \reals; i \in \nats, t_i \ge 0 \}$ such that $t_i < |\nu|(E_i)$, but if $|\nu|(E_i) = 0$, then let $t_i = 0$. Given each $t_i$ we can find a partition of $E_i$, $\{A_{i,j} \} \in \partset{E_i, \A}$, such that $\sum_{j \in \nats} |\nu(A_{i,j})| \ge t_i$. Each $E_i$ has atleast one well defined partition; at a minimum $\{E_i, \phi \} \in \partset{E_i, \A}$. If this is the only partition in $\partset{E_i, \A}$, then $|\nu|(E_i) = |\nu(E_i)|$, and in this case $\sum_{j \in \nats} |\nu(A_{i,j})| = |\nu(E_i)| = |\nu|(E_i) > t_i$.  Now we have that $\{ A_{i,j}; i,j \in \nats \} \in \partset{E, \A}$, so that by the $\sup$ in the difinition of $|\nu|$, summing over $i$,
+
+$$    |\nu|(E) \ge \sum_{i =1 }^\infty \sum_{j =1}^\infty |\nu(A_{i,j})| \ge \sum_{i=1}^\infty t_i. $$
+
+\noindent
+Lemma about $\reals$, Let $L \in \reals, \{ a_k \in \reals; k \in \nats \}$, then
+
+$$
+\left(  \sum_{k=1}^n t_k \le L  \fall \{ t_k \} \in \reals^n, \; t_k \le a_k, \; n \in \nats  \right) \rimply \sum_{k = 1} ^ \infty a_k \le L.
+$$
+
+\noindent
+If $n=1$, suppose $a > L$, then can find some $t \in \reals \st L < t \le a$, so the statement $ \left( t \le L  \; \forall \; t \in \reals, t \le a \right)$ contradicts $a > L$, but either $a > L$ or  $a \le L$. Suppose the lemma is true for the case $n \in \nats$, fixed, then $  \sum_{k=1}^{n+1} t_k \le L  \fall \{ t_k \} \in \reals^{n+1}, \; t_k \le a_k  \rimply$
+$  \sum_{k=1}^{n} t_k \le L-t_{k+1}  \fall \{ t_k \} \in \reals^{n}, t_{k+1} \in \reals, \; t_k \le a_k \rimply$ ( by statement is true for $n \in \nats$)
+$  \sum_{k=1}^{n} a_k \le L-t_{k+1},  t_{k+1} \in \reals, \; t_{k+1} \le a_{k+1} \rimply$
+$  t_{k+1} \le L-\sum_{k=1}^{n} a_k,  t_{k+1} \in \reals, \; t_{k+1} \le a_{k+1} \rimply$
+( by statement is true for $n=1$) $a_{k+1} \le L-\sum_{k=1}^{n} a_k \rimply $  $\sum_{k=1}^{n+1} a_k \le L$. \\
+
+
+\noindent
+Now, using this lemma, with $L = |\nu|(E)$, $a_k = |\nu|(E_k)$, and ${t_k}$ chosen so that ${t_k} < |\nu|(E_k)$ as previously, and relying on the result that $ \sum_{k=1}^\infty t_k \le  |\nu|(E) $, we have that
+
+$$
+\sum_{k=1}^\infty |\nu|(E_k) \le |\nu|(E).
+$$
+
+
+
+\noindent
+``$\le$'':  $\{ E_k \} \in \partset{ E, \A }$ is given. Then for all $\{ A_j \} \in \partset{ E, \A }$, $\{ A_j \cap E_k; k \in \nats \} \in \partset{ A_j, \A }$, then
+
+$$
+    \sum_{j \in \nats} | \nu(A_j) | = \sum_{j \in \nats} | \sum_{k \in \nats} \nu( A_j \cap E_k)| 
+    \le \sum_{j \in \nats} \sum_{k \in \nats} | \nu(A_j \cap E_k) | 
+    =   \sum_{k \in \nats} \sum_{j \in \nats} | \nu(A_j \cap E_k) | \le \sum_{k \in \nats} |\nu|(E_k),
+$$
+
+
+\noindent
+by $\{ A_j \cap E_k; j \in \nats \} \in \partset{ E_k, \A }$. This was for all $\{ A_j \} \in \partset{ E, \A }$, so is true for the $\sup$ in the definition of $|\nu|$, so
+
+$$
+\sum_{k=1}^\infty |\nu|(E_k) \ge |\nu|(E).
+$$
+
+\noindent
+So we have that $|\nu| \in \M^+(X, \A)$. That $|\nu|(E) \ge |\nu(E)|$ follows by noting that $ \{ E, \phi \} \in \partset{E,\A}$ so that $|\nu|(E) \ge |\nu(E)| + |\nu(\phi)| = |\nu(E)|$. Suppose $\mu \in \M^+(\A)$ was another positive measure satisfying ${(\dagger_1)}$, then for $\{ E_k \} \in \partset{E,\A}$ arbitrarily, applying ${(\dagger_1)}$ and summing, $\sum_{k \in \nats} |\nu(E_k)| \le \sum_{k \in \nats} \mu(E_k) = \mu(E)$, now by its definition, $|\nu|(E)$ is the $\sup$ of numbers of the form on the LHS, and by this inequality, $\mu(E)$ is an upper bound for such numbers, thus $|\nu|(E) \le \mu(E)$, for all $E \in \A$.  $\Box$ \\
+
+$\M(X, \A)$ is a vector space, with respect to measure addition, $(\nu_1 + \nu_2)(E) = \nu_1(E) + \nu_2(E)$, scaling, $\lambda(\nu)(E) = (\lambda \nu)(E)$, the zero measure, $0(E) = 0$ for all $E \in \A$. The details to this are obvious.\\
+
+$\nu_1, \nu_2 \in \M(X, \A)$, $\lambda \in \reals$ or $\complexes$ then $|\nu_1 + \nu_2| \le |\nu_1| + |\nu_2|$, $|\lambda \nu_1| = |\lambda| \, |\nu_1|$. \\
+
+\noindent
+Proof: For all $E \in \A$, $|(\nu_1 + \nu_2)(E)| = |\nu_1(E) + \nu_2(E)| \le |\nu_1(E)| + |\nu_2(E)|$ 
+$\le |\nu_1|(E) + |\nu_2|(E) = (|\nu_1| + |\nu_2|)(E)$. Scaling follows by $|\lambda \nu_1(E)| = |\lambda| |\nu_1(E)|$, and for any $A \subset \reals, a \in \reals$, $A \not = \phi, a > 0$   $\sup \{ a x: x \in A \} = a \sup A$.\\
+
+
+Theorem 6.4 in Rudin: If $\nu \in \M(X, \A)$, then $|\nu|(X) < \infty$. \\
+
+$\M(X, \A)$ is a normed space w.r.t. $||\nu|| := \nu(X) \fall \nu \in \M(X, \A)$. \\
+
+\noindent
+Proof: $|| \nu_1 + \nu_2 || = |\nu_1 + \nu_2|(X) \le |\nu_1|(X) + |\nu_2|(X) = ||\nu_1|| + ||\nu_2|| $. $||\lambda \nu|| = |\lambda \nu|(X) = |\lambda| |\nu|(X) = |\lambda| ||\nu||$. $||\nu||(X) = |\nu|(X) \ge 0$, $||\nu|| = 0 \rimply |\nu|(X) = 0 \rimply 0 = |\nu|(X) \ge |\nu|(E) \ge |\nu(E)| \fall E \in \A \rimply$ $\nu = 0$. \\
+
+$\M(X, \A)$ is a complete metric space with respect to the canonical metric induced by the norm: $d(\nu_1,\nu_2) = (\nu_1-\nu_2)(X)$. Thus $\M(X, \A)$ is a Banach space. \\
+
+\noindent
+Proof: ADD \\
+
+For all $ \nu \in \M^\pm(X, \A)$, , define $\nu^+ = \frac{1}{2}(|\nu| + \nu)$, $\nu^- = \frac{1}{2}(|\nu| - \nu)$. Then $\nu^+, \nu^- \in  \M^+(X, \A)$, $\nu = \nu^+ - \nu^-$, $|\nu| = \nu^+ + \nu^-$. This is the Jordan decomposition of $\nu$, and is unique. Further, if $\nu \in \M(X, \A)$, then define $\Re(\nu)(E) = \Re(\nu(E))$, $\Im(\nu)(E) = \Im(\nu(E))$ for all $E \in \A$, then $\Re(\nu), \Im(\nu) \in \M(X, \A)$, and so $\nu = \sum_{k=0}^3 i^k \nu_k$, where each $\nu_k \in \M^+(X, \A)$, $i = \sqrt{-1}$.\\
+
+\noindent
+Proof: ADD \\
+
+For all $f:X \rarw \complexes$, $\A$-measurable, $\nu \in \M(X, \A)$, say that $f$ is $\nu$-integrable if it is $|\nu|$-integrable, so $f \in \Ell (X, |\nu|)$. Write $\nu_0 = \Re(\nu)^+, \nu_1 = \Re(\nu)^-, \nu_2 = \Im(\nu)^+, \nu_3 = \Im(\nu)^-$, then \\
+
+$$
+\int_X f d\nu = \sum_{k=0}^3 \, i^k \, \int_X f \, d\nu_k
+$$
+
+and $f \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, \nu_k)$ iff $f \in \Ell (X, \nu_k)$, for all $k \in \{0,1,2,3\}$. \\
+
+\noindent
+Proof: ADD \\
+
+
+For $\nu \in \M(X, \A)$, say that $\nu$ is concentrated on $A \in \A$ if $\nu(E) = \nu(A \cap E)$ for all $E \in \A$, or equivalently $\nu(E) = 0 \fall E \in \A, E \subset A^c$. Not equivalently that $\nu(A^c) = 0$. \\
+
+
+For $\nu \in \M(X, \A)$, $\mu \in \M^+(X, \A)$, say that $\nu$ is absolutely continuous w.r.t. $\mu$ if $\mu(E) = 0 \rimply \nu(E) = 0$ $\fall E \in \A$, and write $\nu << \mu$. \\
+
+For $\nu_1, \nu_2 \in \M(X, \A)$, say $\nu_1$ and $\nu_2$ are mutually singular if they are concentrated on disjoint sets, and write $\nu_1 \perp \nu_2$. \\
+
+\break
+
+For $\mu \in \M^+(X, \A)$, $\nu,\nu_1,\nu_2 \in \M(X, \A)$, \\
+
+\noindent
+a) $\nu$ concentrated on $A \rimply$ $|\nu|$ concentrated on $\A$. \\
+b) $\nu_1 \perp \nu_2 \rimply |\nu_1| \perp |\nu_2|$. \\
+c) $\nu_1 \perp \mu$, $\nu_2 \perp \mu \rimply \nu_1 + \nu_2 \perp \mu$. \\
+d) $\nu_1 << \mu, \nu_2 << \mu \rimply \nu_1 + \nu_2 << \mu$. \\
+e) $\nu << \mu \rimply |\nu| << \mu$. \\
+f) $\nu_1 << \mu, \nu_2 \perp \mu \rimply \nu_1 \perp \nu_2$. \\
+g) $\nu << \mu, \nu \perp \mu \rimply \nu = 0$. \\
+
+
+\noindent
+Proof: ADD \\
+
+
+For $\mu \in \M^+(X, \A)$, $\sigma$-finite, then there is a function $w \in L^1(\mu) \st w(x) \in (0,1) \fall x \in X$. Thus $\tilde{\mu} := w \, \mu \in \M^+(X, \A)$, and $\mu(E) = 0 \lrimply \tilde{\mu}(E)=0$ and $ \tilde{\mu}(E) < \infty \fall E \in \A$. \\
+
+\noindent
+Proof: $X = \cup_k E_k, E_k \in \A, \mu(E_k) < \infty$. Let $w_k(x) = 0$ if $x \in E_k^c$, $w_k(x) = 2^{-k}/ (1+\mu(E_k))$, else. Then on $E_k, 1+\mu(E_k) \in (1,\infty), 1/ (1+\mu(E_k)) \in (0,1)$. Then $w(x) = \sum_{k=1}^\infty w_k(x) \in (0,1)$.
+
+
+
+
+
+
+
+
+
+
+
+\noindent
+Proof: ADD \\
+
+
+\noindent
+Proof: ADD \\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
