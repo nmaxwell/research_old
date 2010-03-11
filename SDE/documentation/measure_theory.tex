@@ -5,6 +5,7 @@
 \usepackage{amsfonts}
 \usepackage{latexsym}
 \usepackage{graphicx}
+\usepackage{colonequals}
 
 \setlength\topmargin{-1in}
 \setlength{\oddsidemargin}{-0.5in}
@@ -28,6 +29,7 @@
 \newcommand{\partset}[1]{ \mathcal{P}^{*}(#1) }
 \newcommand{\st}[0]{ \textrm{ s.t. } }
 \newcommand{\fall}[0] { \textrm{ for all } }
+\newcommand{\wrt}[0] { \textrm{ w.r.t. } }
 
 \newcommand{\nats}[0] { \mathbb{N}}
 \newcommand{\reals}[0] { \mathbb{R}}
@@ -69,6 +71,10 @@
 
 \newcommand{\rarw}[0] { \rightarrow }
 \newcommand{\larw}[0] { \leftarrow }
+
+\newcommand{ \defeq }[0] { \colonequals }
+\newcommand{ \eqdef }[0] { \equalscolon }
+
 
 
 \begin{document}
@@ -240,79 +246,263 @@ $$
 \int_X f d\nu = \sum_{k=0}^3 \, i^k \, \int_X f \, d\nu_k
 $$
 
+\noindent
 and $f \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, |\nu|)$ iff $|f| \in \Ell (X, \nu_k)$ iff $f \in \Ell (X, \nu_k)$, for all $k \in \{0,1,2,3\}$. \\
 
 \noindent
 Proof: ADD \\
 
 
-For $\nu \in \M(X, \A)$, say that $\nu$ is concentrated on $A \in \A$ if $\nu(E) = \nu(A \cap E)$ for all $E \in \A$, or equivalently $\nu(E) = 0 \fall E \in \A, E \subset A^c$. Not equivalently that $\nu(A^c) = 0$. \\
 
 
-For $\nu \in \M(X, \A)$, $\mu \in \M^+(X, \A)$, say that $\nu$ is absolutely continuous w.r.t. $\mu$ if $\mu(E) = 0 \rimply \nu(E) = 0$ $\fall E \in \A$, and write $\nu << \mu$. \\
-
-For $\nu_1, \nu_2 \in \M(X, \A)$, say $\nu_1$ and $\nu_2$ are mutually singular if they are concentrated on disjoint sets, and write $\nu_1 \perp \nu_2$. \\
+%-----------------------------
 
 \break
 
-For $\mu \in \M^+(X, \A)$, $\nu,\nu_1,\nu_2 \in \M(X, \A)$, \\
+For $\nu \in \M(X, \A)$, say that $\nu$ is concentrated on $A \in \A$ if $\nu(E) = \nu(A \cap E)$ for all $E \in \A$. \\
+
+\noindent
+This is equivalent to $\nu(E) = 0 \fall E \in \A, E \subset A^c$, by $\nu(E) = \nu(E \cap A) + \nu( E \cap A^c) = \nu(E \cap A) \lrimply \nu( E \cap A^c) = 0$.  Not equivalently that $\nu(A^c) = 0$. \\
+
+
+\noindent
+If $A,B \in \A$, and $\nu$ is concentrated on both $A,B$, then $\nu(A \setminus B) = \nu( A \cap B^c) = \nu( (A \cap B^c) \cap B ) = \nu( \phi ) = 0$, thus $\nu( A \Delta B) = 0$. So sets on which a measure concentrate differ by at most sets of measure zero. \\
+
+
+\noindent
+If $A,T \in \A$, and $\nu$ is concentrated on $A$, $A \cap T = \phi$, then $\nu(T) = 0$, and for all $E \in \A$, $\nu(E) = \nu(E \cap A) + 0 = \nu(E \cap A) + \nu(E \cap T) = \nu(E \cap (A \cup T))$. So if $\nu$ is concentrated on $A$, and $B \in A$ is any other set which contains $A$, then $\nu$ is concentrated on $B$ also. \\
+
+
+\noindent
+Then, if $\nu_1, \nu_2 \in \M(\A)$, $\nu_1$ concentrated on $A_1$, $\nu_2$ on $A_2$, then $\nu_1$ and $\nu_2$ both concentrated on $A_1 \cup A_2$, so for $\nu = \nu_1 + \nu_2$, $\nu(E) = \nu_1(E) + \nu_2(E) = \nu_1(E \cap (A_1 \cup A_2) ) + \nu_2(E \cap (A_1 \cup A_2) ) = \nu(E \cap (A_1 \cup A_2))$, so $\nu$ concentrated on $A_1\cup A_2$. Clearly sets of concentration don't change when scaling a measure by non-zero scalar. \\
+
+
+
+\noindent
+This all suggests the following construction.
+
+$$
+    \bigcap \left\{ A \in \A ; \; \nu(E) = \nu(E \cap A) \fall E \in \A  \right\}
+$$
+
+\noindent
+Is this set well defined? Need to show that it is in $\A$. \\
+
+
+For $\nu \in \M(X, \A)$, $\mu \in \M^+(X, \A)$, say that $\nu$ is absolutely continuous w.r.t. $\mu$ if $\mu(E) = 0 \rimply \nu(E) = 0$ $\fall E \in \A$, and write $\nu \ll \mu$. \\
+
+For $\nu_1, \nu_2 \in \M(X, \A)$, say $\nu_1$ and $\nu_2$ are mutually singular if they are concentrated on disjoint sets, and write $\nu_1 \perp \nu_2$. \\
+
+\noindent
+If $\nu \perp \nu$, then for any sets $A,B \in \A$ on which $\nu$ concentrates, $A \cap B = \phi$, but $\nu(A \Delta B) = 0$, so $\nu(A \cup B) = 0$, so $\nu$ concentrates only on $\nu$-null sets, so $\nu=0$. \\
+
+
+(Rudin 6.8) For $\mu \in \M^+(X, \A)$, $\nu,\nu_1,\nu_2 \in \M(X, \A)$, \\
 
 \noindent
 a) $\nu$ concentrated on $A \rimply$ $|\nu|$ concentrated on $\A$. \\
 b) $\nu_1 \perp \nu_2 \rimply |\nu_1| \perp |\nu_2|$. \\
 c) $\nu_1 \perp \mu$, $\nu_2 \perp \mu \rimply \nu_1 + \nu_2 \perp \mu$. \\
-d) $\nu_1 << \mu, \nu_2 << \mu \rimply \nu_1 + \nu_2 << \mu$. \\
-e) $\nu << \mu \rimply |\nu| << \mu$. \\
-f) $\nu_1 << \mu, \nu_2 \perp \mu \rimply \nu_1 \perp \nu_2$. \\
-g) $\nu << \mu, \nu \perp \mu \rimply \nu = 0$. \\
+d) $\nu_1 \ll \mu, \nu_2 \ll \mu \rimply \nu_1 + \nu_2 \ll \mu$. \\
+e) $\nu \ll \mu \rimply |\nu| \ll \mu$. \\
+f) $\nu_1 \ll \mu, \nu_2 \perp \mu \rimply \nu_1 \perp \nu_2$. \\
+g) $\nu \ll \mu, \nu \perp \mu \rimply \nu = 0$. \\
+
+\noindent
+a) Let $E \subset A^c$, $\{ E_k \} \in \partset{E, \A}$, then $\nu(E_k) = 0$, $\{E_k\}$ is arbitrary, so $|\nu|(E) = 0$. \\
+
+\noindent
+b) If $\nu_1$ is concentrated on $A_1$, $\nu_2$ on $A_2$, then $|\nu_1|$ on $A_1$, and $|\nu_2|$ on $A_2$ by (a). The hypothesis is that $A_1$ and $A_2$ are disjoint, this is then what is needed for the conclusion. \\
+
+\noindent
+c) $\nu_1$ concentrated on $A_1$, $\mu$ on $B_1$, $\nu_2$ on $A_2$, and $\mu$ on $B_2$, so the hypothesis is that that $A_1 \cap B_1 = \phi$, $A_2 \cap B_2 = \phi$, but $\nu_1 + \nu_2$ is concentrated on $A_1 \cup A_2$, and $\mu$  on $B_1 \cup B_2$, and $(A_1 \cup A_2) \cap (B_1 \cup B_2) = (A_1 \cap B_1) \cup (A_2 \cap B_2) = \phi$. \\
+
+\noindent
+d) If $\mu(E) = 0$, then $\nu_1(E) = 0 = \nu_2(E)$, so $\nu_1(E) + \nu_2(E) = (\nu_1 + \nu_2)(E) = 0$.\\
+
+\noindent
+e) If $\mu(E) = 0$, then for any $\{ E_k \} \in \partset{E, \A}$, $\mu(E_k) = 0$, thus $\nu(E_k) = 0 \fall E_k$ bu hypothesis, and thus $|\nu|(E) = 0$.   \\
+
+\noindent
+f) Since $\nu_2 \perp \mu$, there is an $A \in \A$ with $\mu(A) = 0$, and $\nu_2$ concentrated on $A$. $\nu_1(E) = 0 \fall E \subset A, E \in \A$ by $\mu(E) = 0$, thus $\nu_1$ concentrates on $A^c$.  \\
+
+\noindent
+g) by (f), $\nu \perp \nu$, so $\nu = 0$.  \\
+
+
+(Rudin 6.9) For $\mu \in \M^+(X, \A)$, $\sigma$-finite, then there is a function $w \in L^1(\mu) \st w(x) \in (0,1) \fall x \in X$. Thus $\tilde{\mu}(E) := \int_E w \, d\mu \in \M^+(X, \A)$, and $\mu(E) = 0 \lrimply \tilde{\mu}(E)=0 \fall E \in \A$   and $ \tilde{\mu}(X) \le 1 < \infty$. \\
+
+\noindent
+Proof: $X = \cup_k E_k, E_k \in \A, \mu(E_k) < \infty$. Let $w_k(x) = \chi_{_{E_k}}(x) \; 2^{-k}/ (1+\mu(E_k))$. Then on $E_k, 1+\mu(E_k) \in (1,\infty), 1/ (1+\mu(E_k)) \in (0,1)$. Then $w(x) = \sum_{k=1}^\infty w_k(x) \in (0,1)$. Each $w_k$ is the product of a measurable characteristic function, and a number, and so is measurable, and then by Beppo-Levi,
+
+$$
+    \tilde{\mu}(X) =  \int_X \sum_{k=1}^\infty w_k(x) d\mu(x) =  \sum_{k=1}^\infty  \int_X w_k(x) d\mu(x) =  \sum_{k=1}^\infty   \frac{2^{-k}}{ (1+\mu(E_k))}     \mu(E_k) \le \sum_{k=1}^\infty 2^{-k} = 1.
+$$
+
+$$
+    \tilde{\mu}(E) =  \sum_{k=1}^\infty  \int_X \chi_{_{E}}(x) \frac{ \chi_{_{E_k}}(x)  2^{-k}}{ (1+\mu(E_k))} d\mu(x) = \sum_{k=1}^\infty \frac{ \mu(E \cap E_k ) }{ 1+\mu(E_k)} 2^{-k} = 0 \lrimply \mu(E) = 0
+$$
+
+\noindent
+because $\mu(E) = \sum_{k=1}^\infty \mu(E \cap E_k)$.
+
+
+\vspace{20pt}
+
+(Rudin 1.40) $\mu \in \M^+(\A)$, $\mu(X) < \infty$, $f \in L^1(\mu)$, $S \subset \complexes$, closed, and define the averages
+
+$$
+A_E(f) = \frac{1}{\mu(E)}  \int_E f \, d\mu.
+$$
+
+\noindent
+If $A_E(f) \in S$ for all $E \in \A$ with $\mu(E) > 0$, then $f(x) \in S$ for a.e. $x \in X$.\\
 
 
 \noindent
 Proof: ADD \\
 
 
-For $\mu \in \M^+(X, \A)$, $\sigma$-finite, then there is a function $w \in L^1(\mu) \st w(x) \in (0,1) \fall x \in X$. Thus $\tilde{\mu} := w \, \mu \in \M^+(X, \A)$, and $\mu(E) = 0 \lrimply \tilde{\mu}(E)=0$ and $ \tilde{\mu}(E) < \infty \fall E \in \A$. \\
+
+
+%---------------
+
+
+\break
+
+(Rudin 6.10) $(X, \A)$ a measurable space, $\mu \in \M^+(X, \A)$, $\sigma$-finite. \\
+
+\noindent 
+a) Lebesgue Decomposition Theorem (LDT): \\
+
+\noindent 
+For all $\nu \in \M(X, \A)$, there exist unique $\nu_a, \nu_s \in \M(X, \A)$ such that $\nu = \nu_a + \nu_s$, $\nu_a \ll \mu$, $\nu_s \perp \mu$, $\nu_a \perp \nu_s$. \\
+
+\noindent 
+b) Radon-Nikodym Theorem (RNT): \\
+
+\noindent 
+For all $\nu \in \M(X, \A)$ such that $\nu \ll \mu$, there exists a unique $h \in L^1(\mu)$ such that $ \nu(E) = \int_E h \, d\mu $, $E \in \A$. \\
+
+\vspace{10pt}
 
 \noindent
-Proof: $X = \cup_k E_k, E_k \in \A, \mu(E_k) < \infty$. Let $w_k(x) = 0$ if $x \in E_k^c$, $w_k(x) = 2^{-k}/ (1+\mu(E_k))$, else. Then on $E_k, 1+\mu(E_k) \in (1,\infty), 1/ (1+\mu(E_k)) \in (0,1)$. Then $w(x) = \sum_{k=1}^\infty w_k(x) \in (0,1)$.
+Remarks:  \\
+
+\noindent
+In the LDT, we can apply the RNT to $\nu_s$, and if $\nu \ll \mu$, then $\nu_s = 0$. \\
+
+\noindent
+In the LDT, $\nu \in \M^+(X, \A) \rimply \nu_a, \nu_s \in \M^+(X, \A)$. \\
+
+\noindent
+In the RNT, if $\nu \in \M^+(X, \A)$, then $h \ge 0$ $\mu$-a.e. \\
+
+
+%\noindent
+%If, $\nu \in \M^+(X, \A)$ but not $\sigma$-finite, then LDT holds, but $\nu_a, \nu_s$ might not be finite. \\
+
+%\noindent
+%If, $\nu \in \M^+(X, \A)$ but not $\sigma$-finite, then RNT holds but $h$ might not be finite or integrable. \\
 
 
 
 
-
-
-
-
-
+\vspace{10pt}
 
 
 \noindent
-Proof: ADD \\
+Proof: \\
+
+\noindent
+Uniqueness: In LDT, if $(\nu_a', \nu_s')$ another pair of measures from LDT, then $\nu_a' - \nu_a = \nu_s - \nu_s'$, $\nu_a' - \nu_a \ll \mu$, and $\nu_s - \nu_s' \perp \mu$, hence both sides here are 0, by c,d,g from preliminary propositions. In RNT, if $ \nu(E) = \int_E h \, d\mu =  \int_E h' \, d\mu $, then $  \int_E (h - h') \, d\mu = 0$, $E \in \A$, and then by the vanishing principle, $h = h'$ $\mu$-a.e.. \\
+
+\noindent
+Step 1: If $\nu \in \M(X, \A)$,  $\nu(X) < \infty$, then apply Rudin 6.9 to $\mu$ to obtain $w \in L^1(\mu), w(x) \in (0,1) \fall x \in X$. Then $\varphi(E) := \nu(E) + \int_E w \, d\mu$ is a positive finite measure on $\A$, and $\varphi \ge \nu$. Then for any $\A$-measurable function $f:X \rarw [0, \infty]$,
+
+$$
+\int_X f \, d\varphi = \int_x f \, d\nu + \int_x f w \, d\mu,
+$$
+
+\noindent
+by following the standrad steps in the construction of the integral. If $f \in L^2(\mu)$,
+
+
+$$
+\int_X |f| \, d\nu  \le  \int_X |f| \, d\varphi \le \left( \int_X 1 \, d\varphi \right)^{1/2} \left( \int_X |f|^2 \, d\varphi \right)^{1/2}   = \varphi(X)^{1/2} \left( \int_X |f|^2 \, d\varphi \right)^{1/2} < \infty
+$$
+
+\noindent
+by the Schwarz inequailty, so $f \in L^1(\nu), f \in L^1(\varphi)$, similarly, $fw \in L^1(\mu)$. Thus, $f \mapsto \int_X f \, d\nu$ is a linear functional, bounded (by $\sqrt{\varphi(X)}$)  on $L^2(\varphi)$. Hence by $L^2(\varphi)$ being a Hilbert space, and Riesz representation, there exists a $g \in L^2(\varphi)$ so that
+
+$$
+\int_x f \, d\nu = \int_x fg \, d\varphi, \fall f \in L^2(\varphi).
+$$
 
 
 \noindent
-Proof: ADD \\
+Then, for $f = \chi_{_E}$, for any $E \in \A$ with $\varphi(E) > 0$, $\lambda(E) = \int_E g \, d\varphi$, and because $ 0 \le \lambda \le \varphi$, $ 0 \le \lambda(E) / \varphi(E) \le \varphi(E)  / \varphi(E) = 1$,
+
+$$
+0 \le \frac{1}{\varphi(E)} \int_E g \, d\varphi \le 1, \fall E \in \A.
+$$
+
+\noindent
+So by Rudin 1.40, $g \in [0,1]$ $\varphi-$a.e. so wlog, $g(x) \in [0,1] \fall x \in X$. \\
+
+\noindent
+Define $A = g^{-1} ([0,1))$, $B = g^{-1}( \{ 1 \})$, then $A,B \in \A$ by $g \in L^2(\varphi) \rimply$ $g$ is $\A$-measurable, $A \cup B = X$, $A \cap B = \phi$. Define $\nu_a(E) = \nu(A \cap E)$, $\nu_s(E) = \nu(B \cap E)$ for all $E \in \A$. Notice $\nu_a(E) + \nu_s(E) = \nu(E \cap A) + \nu(E \cap B) = \nu(E \cap X) = \nu(E)$ for all $E \in \A$, so $\nu = \nu_a +\nu_s$, and by definition, $\nu_s$ is concentrated on $A$, $\nu_s$ on $B$ so $\nu_a \perp \nu_s$. \\
 
 
+\noindent
+Now, rewriting,
+
+$$
+\int_X f \, d\nu = \int_X fg \, d\varphi =  \int_X  fg \, d\nu  +  \int_X  fgw \, d\mu \rarw 
+$$
+$$
+ \int_X (1-g) f \, d\nu = \int_X fgw \, d\mu.
+$$
+
+\noindent
+
+Let $f = \chi_{_B}$, then the LHS is $0$, and the RHS is $\int_X w \, d\mu$, and since $w > 0$, $\mu(B) = 0$, so $\mu$ is concentrated on $B^c = A$, so that $\nu_s \perp \mu$. Next, let $ f = \chi_{_E}  \sum_{k=0}^n g^k$, then $f \ge 0$, $f \in L^2(\varphi)$. Then,
+
+$$
+    \int_E (1-g) f \, d\nu = \int_E fgw \, d\mu \rarw \hspace{10pt} \int_E (1-g^{n+1}) \, d\nu = \int_E \sum_{k=0}^n g^{k+1} w \, d\mu.
+$$
+
+\noindent Let 
+
+$$
+h(x) = w(x)  g(x)\sum_{k=0}^\infty g^{k}(x).
+$$
+
+\noindent 
+For $x \in A$, $g^k(x)$ decreases monotonically, so the partial sums in $h$ increase monotonically, and $ h(x) = \frac{g(x) w(x)}{1-g(x)}$. So, taking the limit of the equation, gives by LMCT 
+
+$$
+\lim_{n \rarw \infty}  \int_{E \cap A} (1-g^{n+1}) \, d\nu =  \lim_{n \rarw \infty}  \int_{E \cap A} \sum_{k=0}^n g^{k+1} w \, d\mu =
+$$
+
+$$
+\int_{E \cap A}  \lim_{n \rarw \infty}  (1-g^{n+1}) \, d\nu =  \int_{E \cap A} \lim_{n \rarw \infty}   \sum_{k=0}^n g^{k+1} w \, d\mu =
+$$
+
+$$
+\int_{E \cap A} 1 \, d\nu =  \int_{E \cap A} h \, d\mu = \nu(E \cap A) = \nu_a(E).
+$$
 
 
+\noindent 
+For $x \in B$, $g(x) = g^k(x) = 1$, so $1-g^{n+1}(x) = 0$, so
 
+$$
+\int_{E \cap B} h \, d\nu = \int_{E \cap B} 0 \, d\nu = 0.
+$$
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\noindent
+not finished.
 
 
 
