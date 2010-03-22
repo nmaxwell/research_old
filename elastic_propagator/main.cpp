@@ -38,6 +38,9 @@ void output(double t, grid_vec & u, grid_vec & v)
     sprintf(fname,"/workspace/output/elastic_propagate_3d/out_dat/u2_%05d.dat", n);
 	assert(!writeFile(u._2,fname));
     
+    sprintf(fname,"/workspace/output/elastic_propagate_3d/out_dat/u3_%05d.dat", n);
+	assert(!writeFile(u._3,fname));
+	
 	n++;
 }
 
@@ -274,14 +277,14 @@ public:
 	double operator() ( double const & x, double const & y, double const & z) const 
 	{
         double x1 = x - 0;
-        double x2 = y + 0;
-        double x3 = z + 0;
+        double x2 = y - 0;
+        double x3 = z - .5;
         
 		double s = sqrt(x1*x1+x2*x2+x3*x3);
         double a = 0.5;
         
 		if (s <= 0.5*a)
-			return (cos(ml_2pi*s/a)+1.0)*pow(cos(_2pi*t),2);
+			return (cos(ml_2pi*s/a)+1.0)*cos(_2pi*t+0*_2pi);
 		else return 0.0;
 	}
 };
@@ -295,15 +298,15 @@ public:
 public:
 	double operator() ( double const & x, double const & y, double const & z) const 
 	{
-        double x1 = x - 0;
-        double x2 = y + 0;
-        double x3 = z + 0;
+        double x1 = x - .5;
+        double x2 = y - 0;
+        double x3 = z - 0;
         
 		double s = sqrt(x1*x1+x2*x2+x3*x3);
         double a = 0.5;
         
 		if (s <= 0.5*a)
-			return (cos(ml_2pi*s/a)+1.0)*pow(cos(_2pi*t),2);
+			return (cos(ml_2pi*s/a)+1.0)*cos(_2pi*t+.3*_2pi);
 		else return 0.0;
 	}
 };
@@ -318,14 +321,14 @@ public:
 	double operator() ( double const & x, double const & y, double const & z) const 
 	{
         double x1 = x - 0;
-        double x2 = y + 0;
-        double x3 = z + 0;
+        double x2 = y - .5;
+        double x3 = z - 0;
         
 		double s = sqrt(x1*x1+x2*x2+x3*x3);
         double a = 0.5;
         
 		if (s <= 0.5*a)
-			return (cos(ml_2pi*s/a)+1.0)*pow(cos(_2pi*t),2);
+			return (cos(ml_2pi*s/a)+1.0)*cos(_2pi*t+.6*_2pi);
 		else return 0.0;
 	}
 };

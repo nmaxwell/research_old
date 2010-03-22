@@ -112,6 +112,9 @@ void Polygon2D::set_inscribed_circle(int n, float radius, float x_center, float 
         this->y_point(k) = sin(theta1)*radius+y_center;
         this->y_point(k+1) = sin(theta2)*radius+y_center;
     }
+    
+    //this->x_point(n_points-1) = this->x_point(0);
+    //this->y_point(n_points-1) = this->y_point(0);
 }
 
 
