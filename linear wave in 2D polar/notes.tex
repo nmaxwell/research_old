@@ -1,0 +1,186 @@
+\documentclass[amsmath,amssymb,floatfix]{revtex4}
+
+\usepackage{graphicx,psfrag}
+
+\usepackage{amsmath}
+
+
+\numberwithin{equation}{section}
+
+\newcommand{\comm}[2]{  \left[ \; #1 \; , \; #2 \; \right] }
+\newcommand{\eq}[0]{ \; = \; }
+
+
+\def\bra#1{\mathinner{\langle{#1}|}} 
+\def\ket#1{\mathinner{| \, {#1} \: \rangle}} 
+\newcommand{\braket}[2]{\langle #1|#2\rangle} 
+\newcommand{\threebraket}[3]{\langle {#1}|{ #2} |{#3} \rangle} 
+\newcommand{\Integral}[4]{ \int_{#1}^{#2}  \hspace{-7pt} #3 \, d #4 }
+
+\def\Bra#1{\left<#1\right|} 
+\def\Ket#1{\left|#1\right>}
+
+\newcommand{\twomat}[4]{ \left( \begin{array}{cc} #1 & #2 \\ #3 & #4  \end{array} \right) }
+\newcommand{\twovec}[2]{ \left( \begin{array}{c} #1  \\ #2   \end{array} \right) }
+
+
+
+%\oddsidemargin 0.0in
+%\evensidemargin 1.0in
+%\textwidth 6.0in
+%\headheight 1.0in
+%\topmargin 0.5in
+\textheight 9.5in
+%\footheight 1.0in 
+
+
+
+  \renewcommand{\topfraction}{0.9}	% max fraction of floats at top
+  \renewcommand{\bottomfraction}{0.8}	% max fraction of floats at bottom
+  \setcounter{topnumber}{8}
+  \setcounter{bottomnumber}{8}
+  \setcounter{totalnumber}{2}     % 2 may work better
+  \setcounter{dbltopnumber}{2}    % for 2-column pages
+  \renewcommand{\dbltopfraction}{0.9}	% fit big float above 2-col. text
+  \renewcommand{\textfraction}{0.07}	% allow minimal text w. figs
+  \renewcommand{\floatpagefraction}{0.07}	% require fuller float pages
+  \renewcommand{\dblfloatpagefraction}{0.01}	% require fuller float page
+
+
+
+\newcommand{\pd}[2]{\frac{ \partial ^ #2}{ \partial #1 ^ #2}  }
+
+
+\begin{document}
+
+
+\title{Notes on the derivation of Finite Differences kernels, on regularly spaced grids, using aritrary sample points}
+
+\author{Nicholas Maxwell}
+
+\affiliation{
+Departments of Physics and Mathematics\\
+University of Houston\\
+Houston, TX 77204-5006 \\
+namaxwell@uh.edu\\
+nicholas.maxwell@gmail.edu
+}
+
+
+
+%\date{April 6,\begin{abstract} 2009}
+
+\maketitle
+
+
+
+
+\begin{equation}
+	u{(s,0)} =  u_0{(s)} 
+\end{equation}
+
+
+
+\begin{equation}
+	\frac{1}{c^2} \pd{t}{2} u{(s,t)} = \frac{1}{s} \pd{s}{1} u{(s,t)} + \pd{s}{2} u{(s,t)}
+\end{equation}
+
+\begin{equation}
+	\frac{1}{c^2} \pd{t}{2} u{(s,t)} = \frac{1}{s} \pd{s}{1} u{(s,t)} + \pd{s}{2} u{(s,t)}
+\end{equation}
+
+\begin{equation}
+	u{(s,t)} = T (s,t;u_0) = f(s,t)\, u_0(g(s,t))
+\end{equation}
+
+
+
+\begin{equation}
+	\pd{s}{0} u{(s,t)} = f(s,t)\, u_0(g(s,t))  
+\end{equation}
+
+\begin{equation}
+	\pd{s}{1} u{(s,t)} =
+	 \left( \pd{s}{1} f(s,t) \right) \,  u_0(g(s,t)) + 
+	  f(s,t) \ \, u'_0(g(s,t)) \, \left( \pd{s}{1} g(s,t)\right)	  
+\end{equation}
+
+
+\begin{eqnarray*}	  
+	\pd{s}{2} u{(s,t)} =
+	 \left( \pd{s}{2} f(s,t) \right) \,  u_0(g(s,t)) + \\
+	 2 \left( \pd{s}{1} f(s,t) \right)  \, u'_0(g(s,t)) \, \left( \pd{s}{1} g(s,t)\right) + \\
+	   f(s,t) \ \, u''_0(g(s,t)) \, \left( \pd{s}{1} g(s,t)\right)^2 + \\
+		\, f(s,t) \ \, u'_0(g(s,t)) \, \left( \pd{s}{2} g(s,t)\right) \\
+\end{eqnarray*}
+
+\begin{equation*}
+	\frac{1}{s} \, \pd{s}{1} u{(s,t)} =
+	\frac{1}{s} \, \left( \pd{s}{1} f(s,t) \right) \,  u_0(g(s,t)) + 
+	  \frac{1}{s} \, f(s,t) \ \, u'_0(g(s,t)) \, \left( \pd{s}{1} g(s,t)\right)	  
+\end{equation*}
+
+\begin{eqnarray*}	  
+	\frac{1}{c^2}\pd{t}{2} u{(s,t)} =
+	\frac{1}{c^2} \left( \pd{t}{2} f(s,t) \right) \,  u_0(g(s,t)) + \\
+	 2 \frac{1}{c^2}\left( \pd{t}{1} f(s,t) \right)  \, u'_0(g(s,t)) \, \left( \pd{t}{1} g(s,t)\right) + \\
+	  \frac{1}{c^2} f(s,t) \ \, u''_0(g(s,t)) \, \left( \pd{t}{1} g(s,t)\right)^2 + \\
+		\frac{1}{c^2}\, f(s,t) \ \, u'_0(g(s,t)) \, \left( \pd{t}{2} g(s,t)\right) \\
+\end{eqnarray*}
+
+
+
+
+\begin{eqnarray*}	 
+	\frac{1}{s} \, \left( \pd{s}{1} f(s,t) \right) \,  u_0(g(s,t)) +  \\
+	  \frac{1}{s} \, f(s,t) \  \, \left( \pd{s}{1} g(s,t)\right) \, u'_0(g(s,t)) + \\ 
+	 \left( \pd{s}{2} f(s,t) \right) \,  u_0(g(s,t)) + \\
+	 2 \left( \pd{s}{1} f(s,t) \right) \, \left( \pd{s}{1} g(s,t)\right)  \, u'_0(g(s,t)) + \\
+	   f(s,t)  \, \left( \pd{s}{1} g(s,t)\right)^2 \, u''_0(g(s,t)) + \\
+		\, f(s,t)  \, \left( \pd{s}{2} g(s,t)\right) \, u'_0(g(s,t)) =  \\  
+	\frac{1}{c^2} \left( \pd{t}{2} f(s,t) \right) \,  u_0(g(s,t)) + \\
+	 2 \frac{1}{c^2}\left( \pd{t}{1} f(s,t) \right)   \, \left( \pd{t}{1} g(s,t)\right) \, u'_0(g(s,t)) + \\
+	  \frac{1}{c^2} f(s,t)  \, \left( \pd{t}{1} g(s,t)\right)^2 \, u''_0(g(s,t)) + \\
+		\frac{1}{c^2}\, f(s,t)  \, \left( \pd{t}{2} g(s,t)\right) \, u'_0(g(s,t)) \\
+\end{eqnarray*}
+
+\begin{eqnarray*}	 
+	\frac{1}{s} \, \left( \pd{s}{1} f(s,t) \right) \,  u_0(g(s,t)) +  \\
+	 \left( \pd{s}{2} f(s,t) \right) \,  u_0(g(s,t))  =  \\  
+	\frac{1}{c^2} \left( \pd{t}{2} f(s,t) \right) \,  u_0(g(s,t))  \\
+\end{eqnarray*}
+
+\begin{eqnarray*}	 
+	  \frac{1}{s} \, f(s,t) \  \, \left( \pd{s}{1} g(s,t)\right) \, u'_0(g(s,t)) + \\ 
+	 2 \left( \pd{s}{1} f(s,t) \right) \, \left( \pd{s}{1} g(s,t)\right)  \, u'_0(g(s,t)) + \\
+		\, f(s,t)  \, \left( \pd{s}{2} g(s,t)\right) \, u'_0(g(s,t)) =  \\  
+	 2 \frac{1}{c^2}\left( \pd{t}{1} f(s,t) \right)   \, \left( \pd{t}{1} g(s,t)\right) \, u'_0(g(s,t)) + \\
+		\frac{1}{c^2}\, f(s,t)  \, \left( \pd{t}{2} g(s,t)\right) \, u'_0(g(s,t)) \\
+\end{eqnarray*}
+
+
+\begin{eqnarray*}	
+	   f(s,t)  \, \left( \pd{s}{1} g(s,t)\right)^2 \, u''_0(g(s,t)) = \\
+	  \frac{1}{c^2} f(s,t)  \, \left( \pd{t}{1} g(s,t)\right)^2 \, u''_0(g(s,t))  \\
+\end{eqnarray*}
+
+\begin{eqnarray*}	
+	    \pm c \, \left( \pd{s}{1} g(s,t)\right)  = \left( \pd{t}{1} g(s,t)\right)  \rightarrow  g(s,t) = s \pm c t
+\end{eqnarray*}
+
+\begin{eqnarray*}	 
+	\frac{1}{s} \,  \pd{s}{1} f(s,t)  +  \pd{s}{2} f(s,t)   =  	\frac{1}{c^2}  \pd{t}{2} f(s,t)   \\
+\end{eqnarray*}
+
+\begin{eqnarray*}	 
+	  \frac{1}{s} \, f(s,t)  + \\ 
+	 2 \left( \pd{s}{1} f(s,t) \right)  = \\
+	 2 \frac{1}{c^2}\left( \pd{t}{1} f(s,t) \right)  \, (\pm c)  + \\
+\end{eqnarray*}
+
+\begin{eqnarray*}	 
+	  \frac{1}{s} \, f(s,t)  + 2 \ \pd{s}{1} f(s,t)   =  \frac{\pm2}{c}   \pd{t}{1} f(s,t)   \\
+\end{eqnarray*}
+
+
+\end{document}
