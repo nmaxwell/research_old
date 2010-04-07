@@ -4,6 +4,8 @@ import math
 import numpy
 import scipy
 import pylab
+import copy
+
 
 floor = math.floor
 ceil = math.ceil
@@ -12,17 +14,78 @@ inf = float("infinity")
 _2pi = 6.2831853071795865
 
 
+
+"""
+class zero_padding():
+    
+    #print "non default __getitem__"
+    def __call__(self, )
+                if 0<= k or k < len(data):
+                    return self.data[k]
+                return 0.
+            
+            self.__getitem__ = f
+            print self.__getitem__
+
+
+
+
+        if extension_mode in ["per", "periodic", "cyclic" ]:
+            def __getitem__(self, k):
+                return self.data[k%len(data)]
+
+
+"""
+
+
+
+
 class pysig:
     "a basic signal (processing) class"
+    
     def __init__(self):
         self.data = numpy.array([])
         self.sampling_period = 0
         self.initial_time = 0
+        self.extension_mode = None
+        self.define_indexing()
+
     
     def __init__(self, n_data=0, initial_time=0, sampling_period=1):
         self.data = numpy.zeros(n_data)
         self.sampling_period = sampling_period
         self.initial_time = initial_time
+        self.define_indexing()
+    
+    def __getitem__(self, k):
+        #print "default __getitem__"
+        
+        if 0 <= k and k < len(self.data):
+            return self.data[k]
+        return 0.
+    
+    def __setitem__(self, k, x):
+        if 0<= k and k < len(self.data):
+            self.data[k] = x
+    
+    def define_indexing(self, extension_mode = None):
+        
+        print "blah."
+    """
+        self.extension_mode = extension_mode
+        
+        if extension_mode == None or extension_mode in ["zero", "zero padding", "zero_padding" ]:
+        
+            
+            
+        if extension_mode in ["per", "periodic", "cyclic" ]:
+            def __getitem__(self, k):
+                return self.data[k%len(data)]
+    
+    """
+    
+    
+    __len__ = lambda self: len(self.data)
     
 #    def read_lvm(self, file_string):
 #        [self.data, self.sampling_period,  self.initial_time ] = read_lvm.read_lvm(file_string)
