@@ -1,110 +1,106 @@
 
+import time as time_module
 from math import *
 from numpy import *
 import numpy
 from waveprop import *
 
-class Polygon2D:
+class polygon2D:
     
-    def __inint__(self, x_points, y_points )
+    def __init__(self, vertices ):
         
-        self.x_points = numpy.array(x_points)
-        self.y_points = numpy.array(y_points)
-        self.n_points = len(x_points)
-        if len(self.x_points) != len(self.y_points)
-            print "error: len(self.x_points) != len(self.y_points)"
+        self.x_points = [ float(v[0]) for v in vertices ]
+        self.y_points = [ float(v[1]) for v in vertices ]
+        self.n_points = len(self.x_points)
     
-    def inerior_test(x,y):
+    def interior_test(self, x,y):
         
         i=j=0
         c = bool(False)
-        j=self.n_points
-        while j < self.n_points-1:
-            
-            if ((self.y_points[i]>y) != (self.y_points[j]>y)) :
-                if (x < (self.x_points[j]-self.x_points[i]) * (y-self.y_points[i]) / (self.y_points[j]-self.y_points[i]) + x_points[i])
-                    c = not c;
-            i += 1
+        j=self.n_points-1
+        while i < self.n_points:
+            if ( self.y_points[i] > y ) != ( self.y_points[j] > y ) :
+                if x < (self.x_points[j]-self.x_points[i]) * (y-self.y_points[i]) / ( self.y_points[j]-self.y_points[i] ) + self.x_points[i]:
+                    c = not c
             j = i
+            i += 1
         
-        return c:
-
-
-
-int Polygon2D::interior_test(const float & x, const float & y)
-{
-    // from http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+        return c
     
-    int i, j, c = 0;
-    for (i = 0, j = n_points-1; i < n_points; j = i++)
-        if ( ((y_points[i]>y) != (y_points[j]>y)) && (x < (x_points[j]-x_points[i]) * (y-y_points[i]) / (y_points[j]-y_points[i]) + x_points[i]) )
-			c = !c;
-    return c;
-}
+    def __contains__(self, x):
+        return self.interior_test(x[0],x[1])
+
+class union:
+    def __init__(self, set1=None, set2=None, set3=None, set4=None  ):
+        self.sets=[]
+        for E in [set1,set2,set3,set4]:
+            if E != None:
+                self.sets.append(E)
+    
+    def __contains__(self, x):
+        for E in self.sets:
+            if x in E:
+                return True
+        return False
+
+class complement:
+    def __init__(self, complement_set  ):
+        self.complement_set = complement_set
+    
+    def __contains__(self, x):
+        return not ( x in self.complement_set )
+
+class simpleFunction:
+    
+    def __init__(self, sets, values ):
+        self.sets = sets
+        self.values = values
+        if len(self.sets) != len(self.values):
+                print "error in simple_function: len(self.sets) != len(self.values):"
+    
+    def __call__(self, x ):
+        sum = (self.values[0])*0.0
+        for k,E in enumerate(self.sets):
+            if x in E:
+                sum += self.values[k]
+        return sum
+
+
+
+
+wall_time_0 = time_module.clock()
+wall_time = lambda : time_module.clock()-wall_time_0
 
 dir = "/workspace/output/acoustic_propagation/"
 
+grid = grid2d( a1 = -500, b1 = 3500, a2=-300, b2=1200, n1=1024, n2=384)
 
-grid = grid2d( n1 = 150, n2 = 600, dx1=20.0, dx2=1.5)
+region_1 = polygon2D([ (0,375), (1500,375), (1500,438), (0,438) ])
+region_2 = polygon2D([ (1500,438), (3000,373), (3000,438), (1500,495) ])
 
+region = union( region_1, region_2 )
 
-velocity = grid.zeros();
-
-mcn = 0
-mcn1 = 0
-
-for j_prime in range(grid.n2):
-    for i_prime in range(grid.n1):
-        
-        i = grid.n1-i_prime-1
-        j = grid.n2-j_prime-1
-        
-        j = j_prime
-        i = i_prime
-        
-        if j <= 270:
-            velocity[i,j] = 2000.0**2
-        
-        elif j >= 270 and j <= 307 and i >= 75 and i < 75+2*mcn+1:
-            mcn = j-270
-            velocity[i,j] = 4500.0**2
-        elif j >= 307 and j <= 344:
-            if i <= 75:
-                velocity[i,j] = 4500**2
-            elif i >= 75+2*mcn1+1:
-                mcn1=j-307
-                velocity[i,j] = 4500.0**2
-            else:
-                velocity[i,j] = 2000.0**2
-        else:
-            velocity[i,j] = 2000.0**2
-
-D1 = Polygon2D([ 0.0,0.0,1520.0,1520.0,0.0], [460.5,516.0,516.0,405.0,460.5])
-D2 = Polygon2D([ 1520.0,1520.0,3140.0,3020.0,1520.0 ], [ 405.0,460.5,516.0,460.5,405.0 ])
-
-
-
-write_png_resample( velocity, dir+ "vlocity.png", grid_new=grid2d(n1=1500,n2=450, b1=grid.b1, b2=grid.b2), grid_old=grid, center = numpy.mean(velocity), major_scale=std(velocity), red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
-
+velocity = simpleFunction( [region, complement(region)], [4500.0**2, 2000.0**2] )
 
 def damping(x,y):
-    
-    i = x/grid.dx1
-    j = y/grid.dx2
-    
-    return 10.0*( cosh(0.18*i)**-2 + cosh(0.18*(grid.n1-i))**-2 + cosh(0.18*(grid.n2-j))**-2 + cosh(0.18*j)**-2 )
+    scale = 50.0
+    return 10000*( cosh(abs(x-grid.a1)/scale)**-2 + cosh(abs(x-grid.b1)/scale)**-2 + cosh(abs(y-grid.a2)/scale)**-2 + cosh(abs(y-grid.b2)/scale)**-2  )
 
-damping = grid.evaluate( damping )
+velocity_grid = grid.evaluate( lambda x,y: velocity((x,y)) )
+damping_grid = grid.evaluate(damping )
 
-write_png_resample( damping, dir+ "damping.png", grid_new=grid2d(n1=1500,n2=450, b1=grid.b1, b2=grid.b2), grid_old=grid, center = numpy.mean(damping), major_scale=std(damping ), red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
-
-
+write_png( velocity_grid, dir+ "vlocity.png", center=mean(velocity_grid), major_scale=std(velocity_grid), red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
+write_png( damping_grid, dir+ "damping.png", major_scale=1.0, red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
 
 
 def driving_function_time_general(t, sigma, gamma, tau ):
     return -sqrt(2.0/pi)*sigma*gamma*(sigma-2.0*sigma*gamma*(sigma*t-tau)**2)*exp(-gamma*(sigma*t-tau)**2)
 
 driving_function_time = lambda t: driving_function_time_general(t=t, sigma=1.5*20, gamma=8, tau=1 )
+
+i0 = grid.index1( 1500 )
+j0 = grid.index2( 800 )
+
 
 """
 T = 0.7*array([ float(i)/1000.0 for i in range(1000) ])
@@ -115,39 +111,44 @@ p.plot( T, F)
 p.show()
 """
 
+print i0,j0
+
+
+
+
 time_step = 0.001
 final_time = 0.7
+every_nth_step = 10
+max_count = inf
 
 count = 0
 driving_1 = grid.zeros()
 driving_2 = grid.zeros()
-
 u = grid.zeros()
 v = grid.zeros()
-
-u[75,0] = 1.0
+u[i0,j0] = 1.0
 
 P = propagator1()
-P.set( grid, expansion_order=10, velocity=velocity, damping=damping )
+P.set( grid, velocity=velocity_grid, damping=damping_grid,  expansion_order=5,   hdaf_m1=8, hdaf_m2=8, hdaf_gamma1=0.8, hdaf_gamma2=0.8 )
 
 
-every_nth_step = 50
-max_count = inf
 
 
 time=0
 
-while time<final_time and count<max_count   :
+while time<=final_time and count<max_count:
     
-    print "time=", time
+    print "step:", count, "\ttime:", time, "\twall time", wall_time()
     
-    driving_1[75,50] = driving_function_time(time)
-    driving_2[75,50] = driving_function_time(time+time_step)
+    driving_1[i0,j0] = driving_function_time(time)
+    driving_2[i0,j0] = driving_function_time(time+time_step)
     
     P( time_step, u,v, u,v, driving_1, driving_2 )
     
     if count%every_nth_step==0:
-        write_png_resample( u, dir+ "%04d.png"%count, grid_new=grid2d(n1=1500,n2=450, b1=grid.b1, b2=grid.b2), grid_old=grid, center=numpy.mean(u), major_scale=numpy.std(u), red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
+        write_png( u, dir+ "%04d.png"%count, center=mean(u), major_scale=std(u)*3, red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
+        #write_png_resample( u, dir+ "%04d.png"%count, grid_new=grid2d(n1=1500,n2=450, b1=grid.b1, b2=grid.b2), grid_old=grid, center=numpy.mean(u), major_scale=numpy.std(u), red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
+    
     count += 1
     
     time += time_step
