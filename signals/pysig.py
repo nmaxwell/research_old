@@ -49,28 +49,23 @@ class pysig:
         self.initial_time = 0
         self.extension_mode = None
         self.define_indexing()
-
     
-    def __init__(self, n_data=0, initial_time=0, sampling_period=1):
-        self.data = numpy.zeros(n_data)
+    def __init__(self, data=[], initial_time=0, sampling_period=1):
+        self.data = numpy.array(data)
         self.sampling_period = sampling_period
         self.initial_time = initial_time
         self.define_indexing()
     
     def __getitem__(self, k):
         #print "default __getitem__"
-        
-        if 0 <= k and k < len(self.data):
-            return self.data[k]
-        return 0.
+        return self.data[k%len(self.data)]
     
     def __setitem__(self, k, x):
-        if 0<= k and k < len(self.data):
-            self.data[k] = x
+        self.data[k%len(self.data)] = x
     
     def define_indexing(self, extension_mode = None):
         
-        print "blah."
+        return None
     """
         self.extension_mode = extension_mode
         
@@ -84,7 +79,7 @@ class pysig:
     
     """
     
-    
+    __contains__ = lambda self,x: x in data
     __len__ = lambda self: len(self.data)
     
 #    def read_lvm(self, file_string):

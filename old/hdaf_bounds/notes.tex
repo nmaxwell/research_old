@@ -1,0 +1,170 @@
+
+\documentclass{article}
+
+
+\usepackage{amsmath}  
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+
+
+
+\newcommand{\twomat}[4]{ \left( \begin{array}{cc} #1 & #2 \\ #3 & #4  \end{array} \right) }
+\newcommand{\twovec}[2]{ \left( \begin{array}{c} #1  \\ #2   \end{array} \right) }
+
+\newcommand{\threemat}[9]{ \left( \begin{array}{ccc} #1 & #2 & #3 \\ #4 & #5 & #6 \\ #7 & #8 & #9 \end{array} \right) }
+\newcommand{\threevec}[3] { \left( \begin{array}{c} #1  \\ #2 \\ #3  \end{array} \right) }
+
+
+
+
+\begin{document}
+
+\section{problem statement}
+
+\begin{flushleft}
+Problem: find a good estimate or exact expression for
+\end{flushleft}
+
+\begin{equation*}
+\tilde{F}_{m,\sigma}^{d,p}(x) = \left( \int_x^\infty | \delta^{(d)}_{m,\sigma}(x') |^p dx'   \right)^{1/p}
+\end{equation*}
+
+\begin{flushleft}
+with
+\end{flushleft}
+
+\begin{equation*}
+\delta^{(d)}_{m,\sigma}(x) = \frac{d^d}{d \, x^d} \, \delta_{m,\sigma} (x),
+\end{equation*}
+\begin{equation*}
+ \delta_{m,\sigma} (x) = \frac{1}{\sqrt{\pi}} \, e^{ \left( -\frac{x^2}{2 \sigma^2} \right)} \, \sum_{n=0}^{m} \, L_n^{(-\frac{1}{2})}   \left( \frac{x^2}{2 \sigma^2} \right) \\
+\end{equation*}
+
+
+\begin{flushleft}
+then we can use 
+\end{flushleft}
+
+\begin{equation*}
+F_{m,\sigma}^{d,p}(x) = \frac{ \tilde{F}_{m,\sigma}^{d,p}(x) }{ \tilde{F}_{m,\sigma}^{d,p}(0) }
+\end{equation*}
+
+\begin{flushleft}
+so
+\end{flushleft}
+
+\begin{equation*}
+F_{m,\sigma}^{d,p}(0) = 1, \; F_{m,\sigma}^{d,p}(\infty) = 0, 
+\end{equation*}
+
+\begin{flushleft}
+so $F_{m,\sigma}^{d,p}(x_0)$ is the error introduced by truncating the convolution integral as
+\end{flushleft}
+
+\begin{equation*}
+f^{(d)}(x) = \int_{x-x_0}^{x+x_0} \, f(x') \, \delta^{(d)} (x-x') \, dx'.
+\end{equation*}
+
+
+\section{relevant formulas}
+
+\begin{flushleft}
+mupltiplication of polynomials:
+\end{flushleft}
+
+\begin{equation*}
+p(x) = \sum_{k=0}^n p_k \, x^k \;, q(x) = \sum_{k=0}^m q_k \, x^k, \; p  q (x) = \sum_{k=0}^{n+m} c_k \, x^k, \; c_k :=  \sum_{j=0}^k \, p_j \, q_{k-j} =  \sum_{j=k-m}^{\min(k,n)} \, p_j \, q_{k-j}.
+\end{equation*}
+
+\begin{flushleft}
+explicit formuas for hermite polynomials:
+\end{flushleft}
+
+\begin{equation*}
+H_{n} = \sum_{k=0}^n \, h_{n,k} x^k
+\end{equation*}
+
+\begin{equation*}
+h_{n,k} = \frac{(-1)^n \, n! \, 2^k}{ k! \, \lfloor{\frac{n-k}{2}} \rfloor ! } \cos((n+k)\frac{\pi}{2})
+\end{equation*}
+
+\begin{equation*}
+h_{2n,2k} = \frac{(2n)!}{(2k)!(n-k)!} 4^k \, (-1)^{n+k}
+\end{equation*}
+
+\begin{equation*}
+h_{2n+1,2k+1} = \frac{(2n+!)!}{(2k+1)!(n-k)!} 2^{2k+1} \, (-1)^{n+k} = \frac{2(2n+1)}{2k+1} \, h_{2n,2k}
+\end{equation*}
+
+
+\begin{flushleft}
+switch order of summation
+\end{flushleft}
+
+\begin{equation*}
+\sum_{i=0}^n \, \sum_{j=0}^{i} = \sum_{j=0}^n \, \sum_{i=j}^{n}
+\end{equation*}
+
+\begin{flushleft}
+explicit formula for $\sigma$-less HDAF
+\end{flushleft}
+
+\begin{equation*}
+\delta_m(x) = e^{-x^2} \, \sum_{k=0}^m \, c_k^m \, x^{2k}
+\end{equation*}
+
+\begin{equation*}
+ c_k^m = \frac{(-1)^k}{ (2k)!  \, \sqrt{\pi}} \sum_{n=0}^{m-k} \, \frac{ (2n+2k)! \, 4^{-n} }{  n! \, (n+k)!  }
+\end{equation*}
+
+\begin{flushleft}
+to do: simplify this.
+\end{flushleft}
+
+
+\begin{flushleft}
+explicit formula for $ \delta^{(d)}_m(x) $
+\end{flushleft}
+
+\begin{equation*}
+\delta_m(x) = e^{-x^2} \, \sum_{k=0}^m \, c_k^m \, x^{2k}
+\end{equation*}
+
+\begin{equation*}
+ c_k^m = \frac{(-1)^k}{ (2k)!  \, \sqrt{\pi}} \sum_{n=0}^{m-k} \, \frac{ (2n+2k)! \, 4^{-n} }{  n! \, (n+k)!  }
+\end{equation*}
+
+\begin{flushleft}
+to do: simplify this.
+\end{flushleft}
+
+
+
+\section{case: p=2}
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
