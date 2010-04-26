@@ -15,9 +15,6 @@ class interval:
 
 
 
-
-
-
 def check_distribution_nball():
     
     dim =3
@@ -67,7 +64,7 @@ def check_distribution():
     measure_sets = [ interval( 2.*pi*k/n_measure_sets-pi, 2.*pi*(k+1)/n_measure_sets-pi ) for k in range(n_measure_sets) ]
     
     
-    x = (0., 0. )
+    x = (0.3, 0. )
     dt = 0.02
     
     distribution, distribution_nocom = hitting_value_distribuion( n_samples, measure_sets, x, f, dt, drift, region )
@@ -95,7 +92,7 @@ def check_distribution():
 
 
     
-check_distribution_nball()
+check_distribution()
 
 
 
