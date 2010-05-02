@@ -204,32 +204,16 @@ e^{t \, \textrm{M}} = \twomat{cosh(t \, z )} {sinh(t \, z) \, z^{-1}} {sinh(t \,
 Then we have,
 \end{flushleft}
 \begin{equation*}
-\twovec{ u(\mathbf{x},t_2) }{ v(\mathbf{x},t_2) }  = \textrm{P}(t_2-t_1) \, \twovec{ u(\mathbf{x},t_1) }{ v(\mathbf{x},t_1) } + \int_{t_1}^{t_2}  \textrm{P}(t_2-t) \, \textbf{f}(\mathbf{x},t) \, dt.
+\twovec{ u(\mathbf{x},t_2) }{ v(\mathbf{x},t_2) }  = \textrm{P}(t_2-t_1) \, \twovec{ u(\mathbf{x},t_1) }{ v(\mathbf{x},t_1) } + \int_{t_1}^{t_2}  \textrm{P}(t_2-t) \, \textbf{f}(\mathbf{x},t) \, dt,
 \end{equation*}
-\begin{flushleft}
-Then we have,
-\end{flushleft}
+
 \begin{equation*}
-\twovec{ u(\mathbf{x},t_2) }{ v(\mathbf{x},t_2) }  = \textrm{P}(t_2-t_1) \, \twovec{ u(\mathbf{x},t_1) }{ v(\mathbf{x},t_1) } +
+\twovec{ u(\mathbf{x},t_2) }{ v(\mathbf{x},t_2) }  = \textrm{P}(t_2-t_1) \, \twovec{ u(\mathbf{x},t_1) }{ v(\mathbf{x},t_1) } + \int_{0}^{t_2-t_1}  \textrm{P}(s) \, \textbf{f}(\mathbf{x},t_2-s) \, ds.
 \end{equation*}
-\begin{equation*}
- \int_{t_1}^{t_2}  \, \left[  \frac{ \sinh((t_2-t) \, \sqrt{C^2(\mathbf{x}) \, \nabla^2}) }{\sqrt{C^2(\mathbf{x}) \, \nabla^2}} \,  f(\mathbf{x},t)  \right]+ 
-\end{equation*}
-\begin{equation*}
-\left[ \cosh((t_2-t) \, \sqrt{C^2(\mathbf{x}) \, \nabla^2}) \,  f(\mathbf{x},t)  \right]\, dt.
-\end{equation*}
-\end{frame}
 
 
-\begin{frame}
-\frametitle{Second approach (6 of 5)}
-\begin{equation*}
-\twovec{ u(\mathbf{x},t_2) }{ v(\mathbf{x},t_2) }  = \textrm{P}(t_2-t_1) \, \twovec{ u(\mathbf{x},t_1) }{ v(\mathbf{x},t_1) } +
-\end{equation*}
-\begin{equation*}
- \int_{t_1}^{t_2} \, \sum_{k=0}^\infty \left( \frac{(t_2-t)^{2k}}{(2k+1)!} (t_2-t+2k+1) \right) \, \left( (C^2(\mathbf{x}) \, \nabla^2 )^k \,  f(\mathbf{x},t) \right) \, dt.
-\end{equation*}
 \end{frame}
+
 
 
 \begin{frame}

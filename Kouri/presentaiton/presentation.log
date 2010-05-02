@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2010.1.26)  26 JAN 2010 12:52
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2010.3.11)  30 APR 2010 11:55
 entering extended mode
  file:line:error style messages enabled.
  %&-line parsing enabled.
@@ -693,8 +693,6 @@ cmss/m/it/10.95 t\OT1/cmss/m/n/10.95 ) = [] \OML/cmm/m/it/10.95 ;
 
 ] [10
 
-] [11
-
 ]
 \tf@nav=\write5
 \openout5 = `presentation.nav'.
@@ -712,10 +710,10 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 7884 strings out of 256216
- 141103 string characters out of 1917072
+ 7913 strings out of 256216
+ 141323 string characters out of 1917072
  233009 words of memory out of 1500000
- 10900 multiletter control sequences out of 10000+200000
+ 10931 multiletter control sequences out of 10000+200000
  12067 words of font info for 46 fonts, out of 1200000 for 2000
  645 hyphenation exceptions out of 8191
  41i,14n,51p,320b,418s stack positions out of 5000i,500n,6000p,200000b,15000s
@@ -728,9 +726,9 @@ esky/cm/cmss8.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmssbx10.pfb></usr/s
 hare/texmf/fonts/type1/bluesky/cm/cmssi10.pfb></usr/share/texmf/fonts/type1/blu
 esky/cm/cmssi8.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr/sh
 are/texmf/fonts/type1/bluesky/cm/cmsy8.pfb>
-Output written on presentation.pdf (11 pages, 75660 bytes).
+Output written on presentation.pdf (10 pages, 72279 bytes).
 PDF statistics:
- 150 PDF objects out of 1000 (max. 8388607)
- 25 named destinations out of 1000 (max. 131072)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 23 named destinations out of 1000 (max. 131072)
  53 words of extra memory for PDF output out of 10000 (max. 10000000)
 

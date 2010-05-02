@@ -16,17 +16,18 @@ def damping(x,y, grid):
 def ricker_wavelet(t, sigma, gamma, tau ):
     return -sqrt(2.0/pi)*sigma*gamma*(sigma-2.0*sigma*gamma*(sigma*t-tau)**2)*exp(-gamma*(sigma*t-tau)**2)
 
+
 session = {}
 session['grid'] = grid2d( a1 = -500, b1 = 3500, a2=-300, b2=1200, n1=1024, n2=384)
 session['damp_index1'] = session['grid'].index1( 1500 )
 session['damp_index2'] = session['grid'].index2( 800 )
-session['driving_function'] =  lambda t: ricker_wavelet(t=t, sigma=1.5*20, gamma=8, tau=1 )
+session['driving_function'] = lambda t: ricker_wavelet(t=t, sigma=1.5*20, gamma=8, tau=1 )
 session['velocity_function'] = lambda x,y: velocity((x,y))
 session['damping_function'] = damping
 session['velocity'] = array([])
 session['damping'] = array([])
 session['driving'] = []
-session['expansion_order'] = 5
+session['expansion_order'] = 2
 session['m1'] = 8
 session['m2'] = 8
 session['gamma1'] = 0.8
@@ -57,6 +58,7 @@ def run( session ):
     driving_2 = grid.zeros()
     i0 = session['damp_index1']
     j0 = session['damp_index2']
+    print i0, j0
     fname = dir  + str(time_module.time())
     scipy.io.savemat( fname, {'m':u} )
     #results[str(step)] = { 'time': time, 'step':step, 'fname':fname }
@@ -69,7 +71,7 @@ def run( session ):
     
     while time[step] <= final_time:
         
-        print "step:", step, "\ttime:", time[step], "\twall time", wall_time()
+        print "step:", step, "\ttime:", time[step], "\twall time", wall_time(), "\tmagnitude:", norm(u)
         
         driving_1[i0,j0] = (session['driving_function'])(time[step])
         driving_2[i0,j0] = (session['driving_function'])(time[step]+time_step)
@@ -86,10 +88,10 @@ def run( session ):
         
         step += 1
         time.append(time_step*step)
-    
-    session['u_fnames'] = u_fnames
-    session['driving'] = driving
-    session['time'] = time
+        
+        session['u_fnames'] = u_fnames
+        session['driving'] = driving
+        session['time'] = time
 
 
 def FT( session, frequency ):
@@ -126,10 +128,18 @@ def load( fname ):
     input.close()
     return session
 
-def draw( data, fname ):
-    write_png( data, fname, center=mean(data), major_scale=std(data)*3, red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
+def render( data, fname ):
+    ar = data.copy()
+    write_png( ar, fname, center=mean(ar), major_scale=std(ar)*3, red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
 
-
+def render_all( session, dir="/workspace/output/scratch/" ):
+    
+    for step,time in enumerate(session['time']):
+        print time
+        data = scipy.io.loadmat( session['u_fnames'][step] )
+        u = data['m']
+        
+        render( u, dir+"%04d.png"%step )
 
 if __name__ == "__main__":
     
@@ -138,7 +148,10 @@ if __name__ == "__main__":
     init(session, P)
     run(session)
     save(session, 'session')
-
+    
+    
+    
+    render_all(session)
 
 
 

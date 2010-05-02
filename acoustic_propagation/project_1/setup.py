@@ -12,6 +12,8 @@ import pickle
 import scipy.io
 import pickle
 
+norm = numpy.linalg.norm
+
 wall_time_0 = time_module.clock()
 wall_time = lambda : time_module.clock()-wall_time_0
 
