@@ -107,7 +107,10 @@ def check_distribution_R2_unitball():
     
     n_ticks = 8
     ticks = [ (2.0*k/n_ticks-1)*pi for k in range(n_ticks+1) ]
-    labels = [ pi_labeler(x) for x in [ fractions.Fraction(2*k-n_ticks, n_ticks) for k in range(n_ticks+1) ] ]
+    labels = []
+    fractions = [fractions.Fraction(2*k-n_ticks, n_ticks) for k in range(n_ticks+1) ] 
+    labels = [ pi_labeler(f) for f in fractions ]
+    
     plt.xticks( ticks, labels )
     plt.xlim( (-3.3,3.3) )
     plt.ylabel("probability")

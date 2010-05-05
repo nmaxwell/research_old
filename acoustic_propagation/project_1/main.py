@@ -1,7 +1,8 @@
 
 from setup import *
 
-dir = "/tmp/research/"
+temp_directory = "/workspace/tmp/research/"
+
 
 region_1 = polygon2D([ (0,375), (1500,375), (1500,438), (0,438) ])
 region_2 = polygon2D([ (1500,438), (3000,373), (3000,438), (1500,495) ])
@@ -28,10 +29,8 @@ session['velocity'] = array([])
 session['damping'] = array([])
 session['driving'] = []
 session['expansion_order'] = 2
-session['m1'] = 8
-session['m2'] = 8
-session['gamma1'] = 0.8
-session['gamma2'] = 0.8
+session['hdaf_order'] = 8
+session['hdaf_gamma'] = 0.8
 session['time_step'] = 0.001
 session['final_time'] = 0.7
 session['u_fnames'] = []
@@ -45,7 +44,7 @@ def init(session, P ):
     print 'initializing, evaluating damping'
     session['damping'] = session['grid'].evaluate( lambda x,y: (session['damping_function'])(x,y,session['grid']) )
     print 'initializing propagator'
-    P.set( session['grid'], velocity=session['velocity'], damping=session['damping'],  expansion_order=session['expansion_order'],   hdaf_m1=session['m1'], hdaf_m2=session['m2'], hdaf_gamma1=session['gamma1'], hdaf_gamma2=session['gamma2'] )
+    P.set( session['grid'], velocity=session['velocity'], damping=session['damping'],  expansion_order=session['expansion_order'],   hdaf_order=session['hdaf_order'], hdaf_gamma=session['hdaf_gamma'] )
 
 
 def run( session ):
@@ -58,8 +57,7 @@ def run( session ):
     driving_2 = grid.zeros()
     i0 = session['damp_index1']
     j0 = session['damp_index2']
-    print i0, j0
-    fname = dir  + str(time_module.time())
+    fname = temp_directory  + str(time_module.time())
     scipy.io.savemat( fname, {'m':u} )
     #results[str(step)] = { 'time': time, 'step':step, 'fname':fname }
     u_fnames = [fname]
@@ -79,7 +77,7 @@ def run( session ):
         
         P( time_step, u,v, u,v, driving_1, driving_2 )
         
-        fname = dir  + str(time_module.time())
+        fname = temp_directory + str(time_module.time())
         scipy.io.savemat( fname, {'m':u} )
         u_fnames.append(fname)
         
@@ -132,14 +130,14 @@ def render( data, fname ):
     ar = data.copy()
     write_png( ar, fname, center=mean(ar), major_scale=std(ar)*3, red_params=(0.33,0,0,1), green_params=(0.5,0,1,0), blue_params=(0.66,1,0,0,) )
 
-def render_all( session, dir="/workspace/output/scratch/" ):
+def render_all( session, directory="/workspace/output/acoustic_propagation/" ):
     
     for step,time in enumerate(session['time']):
-        print time
+        print time, '\t', session['u_fnames'][step]
         data = scipy.io.loadmat( session['u_fnames'][step] )
         u = data['m']
         
-        render( u, dir+"%04d.png"%step )
+        render( u, directory+"%04d.png"%step )
 
 if __name__ == "__main__":
     

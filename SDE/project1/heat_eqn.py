@@ -73,7 +73,6 @@ from hdaf import grid2d,hdafLaplacian2D,write_png
 from ode import *
 
 
-
 grid = grid2d(n1=256, n2=256, a1=-10, a2=-10, b1=10, b2=10 )
 
 

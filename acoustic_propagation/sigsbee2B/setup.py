@@ -1,6 +1,12 @@
 
 
 
+dir = "/workspace/output/acoustic_propagation/"
+
+
+
+
+
 import time as time_module
 from math import *
 from numpy import *
@@ -74,6 +80,57 @@ class simpleFunction:
             if x in E:
                 sum += self.values[k]
         return sum
+
+
+
+
+
+
+import scipy.io as sio
+from waveprop import *
+from numpy import *
+import time
+
+model_dict = sio.loadmat("model.mat")
+model = array(model_dict["model"])
+model=rotate_array(model)
+
+
+
+"""
+(n1,n2) = shape(model)
+temp = model[0:n1-1][:,0:n2-1]
+
+temp = zeros((n1-1,n2-1))
+for i in range(n1-1):
+    for j in range(n2-1):
+        temp[i][j] = model[i][j]
+
+model = temp
+"""
+
+
+(n1,n2) = shape(model)
+(dx1,dx2) = (7.62,7.62)
+a1=3048
+
+undersample=4
+grid_in=grid2d( a1=a1,a2=0, n1=n1,n2=n2, dx1=dx1,dx2=dx2)
+grid=grid2d( a1=a1,a2=0, n1=n1,n2=n2, dx1=dx1,dx2=dx2)
+grid=grid2d( a1=grid.a1,a2=0, n1=grid.n1-1,n2=grid.n2-1, dx1=grid.dx1,dx2=grid.dx2)
+grid=grid2d( a1=grid.a1, a2=grid.a2, b1=grid.b1, b2=grid.b2, dx1=grid.dx1*undersample,dx2=grid.dx2*undersample)
+
+grid = grid.extend_top(n_points = 50)
+grid = grid.extend_bottom(n_points = 50)
+
+grid.debug()
+
+resampler = linearResampler2d( in_grid=grid_in, out_grid=grid )
+model = resampler(model)
+
+write_png(model, "model.png", major_scale=std(model)*3, center=mean(model), ordering='rm' )
+
+
 
 
 
